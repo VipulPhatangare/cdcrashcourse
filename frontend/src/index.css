@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f9fafb;
+  min-height: 100vh;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Campus Dekho Theme Colors */
+:root {
+  /* Primary Colors */
+  --primary-blue: #0d61aa;
+  --primary-dark-blue: #0a4d8a;
+  --yellow: #ffc700;
+  --yellow-dark: #e6b300;
+  --green-accent: #5ba425;
+  
+  /* Background Colors */
+  --dark-bg: #0b0f1a;
+  --section-dark: #111827;
+  --card-bg: #ffffff;
+  --body-bg: #f9fafb;
+  
+  /* Text Colors */
+  --white: #ffffff;
+  --muted: #9ca3af;
+  --text-primary: #1f2937;
+  --border: #e5e7eb;
+  
+  /* Status Colors */
+  --success: #5ba425;
+  --warning: #ffc700;
+  --danger: #dc2626;
+  --pending: #fbbf24;
+  
+  /* Design System */
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --shadow-base: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 32px rgba(13, 97, 170, 0.18);
+  --transition: 0.3s ease;
+}
