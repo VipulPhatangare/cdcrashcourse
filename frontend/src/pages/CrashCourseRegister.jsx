@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
 import paymentQR from '../assets/QR-code.jpg';
+import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
+import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
 import './CrashCourseRegister.css';
 
 const CrashCourseRegister = () => {
@@ -25,6 +27,7 @@ const CrashCourseRegister = () => {
 
   const [otpSent, setOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   // Handle input change
   const handleChange = (e) => {
@@ -339,14 +342,14 @@ const CrashCourseRegister = () => {
             </form>
           )}
 
-          {/* Step 2: Payment Verification */}
+          {/* Step 2: Payment */}
           {currentStep === 2 && (
             <form onSubmit={handleStep2Submit} className="step-form">
-              <h2>Payment Verification</h2>
+              <h2>Payment</h2>
               
               <div className="payment-info">
                 <div className="payment-amount">
-                  <h3>Course Fee: ₹499</h3>
+                  <h3>Course Fee: ₹999</h3>
                 </div>
                 
                 <div className="qr-section">
@@ -389,10 +392,24 @@ const CrashCourseRegister = () => {
 
               <div className="sample-screenshots">
                 <h4>Sample Payment Screenshots</h4>
+                <p className="sample-hint">Your screenshot should look similar to one of these:</p>
                 <div className="sample-grid">
-                  <div className="sample-item">GPay Screenshot</div>
-                  <div className="sample-item">PhonePe Screenshot</div>
-                  <div className="sample-item">Paytm Screenshot</div>
+                  <div className="sample-item">
+                    <img src={gpayScreenshot} alt="Google Pay sample screenshot" />
+                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: gpayScreenshot, label: 'Google Pay' })}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                      View Full Image
+                    </button>
+                    <span>Google Pay</span>
+                  </div>
+                  <div className="sample-item">
+                    <img src={phonePeScreenshot} alt="PhonePe sample screenshot" />
+                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: phonePeScreenshot, label: 'PhonePe' })}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                      View Full Image
+                    </button>
+                    <span>PhonePe</span>
+                  </div>
                 </div>
               </div>
 
@@ -441,6 +458,21 @@ const CrashCourseRegister = () => {
           )}
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxImg && (
+        <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
+          <div className="lightbox-box" onClick={e => e.stopPropagation()}>
+            <div className="lightbox-header">
+              <span>{lightboxImg.label} — Sample Screenshot</span>
+              <button className="lightbox-close" onClick={() => setLightboxImg(null)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <img src={lightboxImg.src} alt={lightboxImg.label} className="lightbox-img" />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="footer">

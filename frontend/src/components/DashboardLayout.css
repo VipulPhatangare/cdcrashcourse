@@ -257,6 +257,76 @@
   display: block;
 }
 
+/* ===== Dashboard Footer ===== */
+.dash-footer {
+  display: block;
+  background: #1a1d29;
+  color: #a0aec0;
+  padding: 2.5rem 2.5rem 0;
+  margin-top: auto;
+}
+
+.dash-footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.dash-footer-logo {
+  width: 130px;
+  height: auto;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.dash-footer-col p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  color: #a0aec0;
+}
+
+.dash-footer-col h4 {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #0d61aa;
+  display: inline-block;
+}
+
+.dash-footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dash-footer-col ul li {
+  margin-bottom: 0.45rem;
+}
+
+.dash-footer-col ul li a {
+  color: #a0aec0;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.dash-footer-col ul li a:hover {
+  color: #fff;
+}
+
+.dash-footer-copy {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #718096;
+  margin: 0;
+  padding: 1rem 0;
+  border-top: 1px solid #2d3748;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .sidebar {
@@ -269,7 +339,7 @@
   }
 
   .sidebar.open {
-    transform: translateX(0);
+    transform: translateX(0); 
   }
 
   .dashboard-main {
@@ -278,5 +348,70 @@
 
   .hamburger {
     display: block;
+    order: 2;        /* move to right side */
+  }
+
+  /* Mobile footer override */
+  .dash-footer {
+    padding: 1.5rem 1rem 0;
+  }
+
+  .dash-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .dash-footer-col:first-child {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .dash-footer-logo { width: 110px; }
+  .dash-footer-col p { font-size: 0.78rem; }
+  .dash-footer-col h4 { font-size: 0.82rem; }
+  .dash-footer-col ul li a { font-size: 0.78rem; }
+  .dash-footer-copy { font-size: 0.7rem; padding-top: 0.6rem; }
+
+  /* Logo moves to the left, hamburger to the right, avatar hidden */
+  .topbar-logo {
+    order: -1;       /* move to left side */
+  }
+
+  .topbar-right {
+    display: none;   /* hide profile avatar on mobile */
+  }
+
+  /* Compact sidebar user section ("footer" of sidebar) */
+  .sidebar-user {
+    padding: 10px 12px 12px;
+  }
+
+  .user-info {
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .user-name {
+    font-size: 0.78rem;
+  }
+
+  .user-email {
+    font-size: 0.65rem;
+  }
+
+  .logout-btn {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    gap: 8px;
   }
 }

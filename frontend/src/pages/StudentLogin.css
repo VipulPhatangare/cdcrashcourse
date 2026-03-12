@@ -520,8 +520,49 @@
 }
 
 @media (max-width: 768px) {
+  .student-login-container .footer {
+    padding: 1.5rem 1rem 0.75rem;
+  }
+
   .student-login-container .footer-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .student-login-container .footer-content .footer-section:first-child {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .student-login-container .footer-logo {
+    width: 130px;
+  }
+
+  .student-login-container .footer-description {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .student-login-container .footer-section h3 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .student-login-container .footer-links li,
+  .student-login-container .footer-contact li {
+    margin-bottom: 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .student-login-container .footer-bottom {
+    padding-top: 0.75rem;
+  }
+
+  .student-login-container .footer-bottom p {
+    font-size: 0.75rem;
   }
 }

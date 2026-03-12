@@ -28,7 +28,6 @@ const CrashCourseLanding = () => {
           <div className="nav-links">
             <Link to="/crash-course/login" className="student-link">Login</Link>
             <Link to="/crash-course/register" className="register-link">Register</Link>
-            <Link to="/admin" className="admin-link">Admin</Link>
           </div>
         </div>
       </nav>
@@ -123,14 +122,10 @@ const CrashCourseLanding = () => {
                   <span className="benefit-text">Limited Seats Available</span>
                 </li>
               </ul>
-              {!isLoggedIn && (
-                <>
-                  <Link to="/crash-course/register" className="register-now-btn">
-                    Register Now
-                  </Link>
-                  <p className="corridor-text">The Admission Corridor</p>
-                </>
-              )}
+              <Link to="/crash-course/register" className="register-now-btn">
+                Register Now
+              </Link>
+              <p className="corridor-text">The Admission Corridor</p>
             </div>
           </div>
         </div>

@@ -165,7 +165,14 @@ const AdminDashboard = () => {
         {/* Statistics Cards */}
         <div className="stats-grid">
           <div className="stat-card stat-total">
-            <div className="stat-icon">📊</div>
+            <div className="stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+            </div>
             <div className="stat-info">
               <h3>{statistics.totalRegistrations}</h3>
               <p>Total Registrations</p>
@@ -174,7 +181,7 @@ const AdminDashboard = () => {
 
           <div className="stat-card stat-pending">
             <div className="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
@@ -187,7 +194,7 @@ const AdminDashboard = () => {
 
           <div className="stat-card stat-approved">
             <div className="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </div>
@@ -198,7 +205,13 @@ const AdminDashboard = () => {
           </div>
 
           <div className="stat-card stat-rejected">
-            <div className="stat-icon">❌</div>
+            <div className="stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+            </div>
             <div className="stat-info">
               <h3>{statistics.rejectedPayments}</h3>
               <p>Rejected Payments</p>
@@ -290,7 +303,7 @@ const AdminDashboard = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={closeModal}>×</button>
             <img 
-              src={`/uploads/${selectedImage.replace(/^.*[\\/]/, '')}`} 
+              src={`/${selectedImage.replace(/\\/g, '/')}`} 
               alt="Payment Screenshot" 
             />
           </div>

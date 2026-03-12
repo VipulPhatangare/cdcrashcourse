@@ -1052,9 +1052,51 @@
     width: 100%;
   }
 
+  .footer {
+    padding: 1.5rem 1rem 0.75rem;
+  }
+
   .footer-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  /* logo + description spans full width, links fill the 2-col rows below */
+  .footer-content .footer-section:first-child {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-logo {
+    width: 130px;
+  }
+
+  .footer-description {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .footer-section h3 {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-links li,
+  .footer-contact li {
+    margin-bottom: 0.35rem;
+    font-size: 0.8rem;
+  }
+
+  .footer-bottom {
+    padding-top: 0.75rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.75rem;
   }
 
   .profile-btn {
@@ -1138,5 +1180,39 @@
 
   .feature-card p {
     font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-links {
+    gap: 0.5rem;
+  }
+
+  .admin-link,
+  .student-link,
+  .register-link {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  .title-main {
+    font-size: 1.6rem;
+  }
+
+  .title-sub {
+    font-size: 1.4rem;
+  }
+
+  .register-now-btn {
+    font-size: 1.1rem;
+    padding: 1rem;
   }
 }

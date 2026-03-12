@@ -145,6 +145,40 @@ const DashboardLayout = ({ children }) => {
           <div className="page-content">
             {children}
           </div>
+          {/* Footer - shown on all screen sizes */}
+          <footer className="dash-footer">
+            <div className="dash-footer-grid">
+              <div className="dash-footer-col">
+                <img src={botLogo} alt="Campus Dekho" className="dash-footer-logo" />
+                <p>Your trusted counselling partner for Engineering admissions in Maharashtra.</p>
+              </div>
+              <div className="dash-footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                  <li><Link to="/crash-course/home">Home</Link></li>
+                  <li><Link to="/crash-course/events">Events</Link></li>
+                  <li><Link to="/crash-course/materials">Materials</Link></li>
+                  <li><Link to="/crash-course/support">Support</Link></li>
+                </ul>
+              </div>
+              <div className="dash-footer-col">
+                <h4>Resources</h4>
+                <ul>
+                  <li><Link to="/crash-course/materials">Study Materials</Link></li>
+                  <li><Link to="/crash-course/events">Upcoming Events</Link></li>
+                  <li><Link to="/crash-course/my-profile">My Profile</Link></li>
+                </ul>
+              </div>
+              <div className="dash-footer-col">
+                <h4>Contact</h4>
+                <ul>
+                  <li><a href="mailto:support@campusdekho.ai">support@campusdekho.ai</a></li>
+                  <li><Link to="/crash-course/support">Help &amp; Support</Link></li>
+                </ul>
+              </div>
+            </div>
+            <p className="dash-footer-copy">&copy; 2026 Campus Dekho. All rights reserved.</p>
+          </footer>
         </main>
       </div>
     </div>
