@@ -1,5 +1,8 @@
 const Student = require('../models/Student');
 const OTP = require('../models/OTP');
+const Material = require('../models/Material');
+const Event = require('../models/Event');
+const Query = require('../models/Query');
 const { sendOTPEmail } = require('../services/emailService');
 const crypto = require('crypto');
 
@@ -416,6 +419,113 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.error('Reset Password Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── STUDENT: MATERIALS ───────────────────────────────────────────────────────
+
+// @desc    Get materials (only for approved students)
+// @route   GET /api/crashcourse/materials/:studentId
+// @access  Public (gated by payment status check)
+exports.getStudentMaterials = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    if (student.paymentStatus !== 'Approved') {
+      return res.status(403).json({
+        success: false,
+        message: 'Materials are only available after payment approval'
+      });
+    }
+
+    const materials = await Material.find().sort({ uploadedAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: materials
+    });
+  } catch (error) {
+    console.error('Get Student Materials Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── STUDENT: EVENTS ──────────────────────────────────────────────────────────
+
+// @desc    Get all events (all logged-in students)
+// @route   GET /api/crashcourse/events
+// @access  Public
+exports.getStudentEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: events
+    });
+  } catch (error) {
+    console.error('Get Student Events Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── STUDENT: SUBMIT QUERY ────────────────────────────────────────────────────
+
+// @desc    Submit a support query
+// @route   POST /api/crashcourse/queries
+// @access  Public
+exports.submitQuery = async (req, res) => {
+  try {
+    const { studentId, subject, message } = req.body;
+
+    if (!studentId || !subject || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide studentId, subject, and message'
+      });
+    }
+
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    const query = await Query.create({
+      studentId: student._id,
+      studentName: student.name,
+      studentEmail: student.email,
+      subject,
+      message
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Query submitted successfully! We will get back to you soon.',
+      data: query
+    });
+  } catch (error) {
+    console.error('Submit Query Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

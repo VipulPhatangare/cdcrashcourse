@@ -1,6 +1,11 @@
 const Admin = require('../models/Admin');
 const Student = require('../models/Student');
+const Material = require('../models/Material');
+const Event = require('../models/Event');
+const Query = require('../models/Query');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -16,7 +21,6 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate email and password
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -24,7 +28,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check if admin exists
     const admin = await Admin.findOne({ email }).select('+password');
 
     if (!admin) {
@@ -34,7 +37,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check if password matches
     const isPasswordMatch = await admin.comparePassword(password);
 
     if (!isPasswordMatch) {
@@ -44,7 +46,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = generateToken(admin._id);
 
     res.status(200).json({
@@ -73,10 +74,8 @@ exports.login = async (req, res) => {
 // @access  Private (Admin)
 exports.getStudents = async (req, res) => {
   try {
-    // Get all students
     const students = await Student.find().sort({ createdAt: -1 });
 
-    // Calculate statistics
     const totalRegistrations = students.length;
     const pendingPayments = students.filter(s => s.paymentStatus === 'Pending').length;
     const approvedPayments = students.filter(s => s.paymentStatus === 'Approved').length;
@@ -186,6 +185,240 @@ exports.getStatistics = async (req, res) => {
     });
   } catch (error) {
     console.error('Get Statistics Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── MATERIALS ────────────────────────────────────────────────────────────────
+
+// @desc    Upload a PDF material
+// @route   POST /api/admin/materials
+// @access  Private (Admin)
+exports.uploadMaterial = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a PDF file'
+      });
+    }
+
+    const { name, description } = req.body;
+
+    if (!name) {
+      // Delete uploaded file if validation fails
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a name for the material'
+      });
+    }
+
+    const material = await Material.create({
+      name,
+      description,
+      filePath: req.file.path.replace(/\\/g, '/'),
+      originalName: req.file.originalname
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Material uploaded successfully',
+      data: material
+    });
+  } catch (error) {
+    console.error('Upload Material Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Get all materials (admin)
+// @route   GET /api/admin/materials
+// @access  Private (Admin)
+exports.getMaterials = async (req, res) => {
+  try {
+    const materials = await Material.find().sort({ uploadedAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: materials
+    });
+  } catch (error) {
+    console.error('Get Materials Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Delete a material
+// @route   DELETE /api/admin/materials/:id
+// @access  Private (Admin)
+exports.deleteMaterial = async (req, res) => {
+  try {
+    const material = await Material.findById(req.params.id);
+
+    if (!material) {
+      return res.status(404).json({
+        success: false,
+        message: 'Material not found'
+      });
+    }
+
+    // Delete file from disk
+    if (fs.existsSync(material.filePath)) {
+      fs.unlinkSync(material.filePath);
+    }
+
+    await material.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Material deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Material Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── EVENTS ───────────────────────────────────────────────────────────────────
+
+// @desc    Create an event
+// @route   POST /api/admin/events
+// @access  Private (Admin)
+exports.createEvent = async (req, res) => {
+  try {
+    const { title, description, zoomLink, date, time } = req.body;
+
+    if (!title || !description || !zoomLink || !date || !time) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide title, description, zoom link, date, and time'
+      });
+    }
+
+    const event = await Event.create({ title, description, zoomLink, date, time });
+
+    res.status(201).json({
+      success: true,
+      message: 'Event created successfully',
+      data: event
+    });
+  } catch (error) {
+    console.error('Create Event Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Get all events (admin)
+// @route   GET /api/admin/events
+// @access  Private (Admin)
+exports.getEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: events
+    });
+  } catch (error) {
+    console.error('Get Events Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Delete an event
+// @route   DELETE /api/admin/events/:id
+// @access  Private (Admin)
+exports.deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    await event.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Event deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Event Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── QUERIES ──────────────────────────────────────────────────────────────────
+
+// @desc    Get all student queries
+// @route   GET /api/admin/queries
+// @access  Private (Admin)
+exports.getQueries = async (req, res) => {
+  try {
+    const queries = await Query.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: queries
+    });
+  } catch (error) {
+    console.error('Get Queries Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Mark a query as resolved
+// @route   PATCH /api/admin/queries/:id/resolve
+// @access  Private (Admin)
+exports.resolveQuery = async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+
+    if (!query) {
+      return res.status(404).json({
+        success: false,
+        message: 'Query not found'
+      });
+    }
+
+    query.status = 'Resolved';
+    await query.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Query marked as resolved',
+      data: query
+    });
+  } catch (error) {
+    console.error('Resolve Query Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

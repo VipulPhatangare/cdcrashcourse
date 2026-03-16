@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import DashboardLayout from '../components/DashboardLayout';
 import './Support.css';
 
@@ -9,6 +10,8 @@ const Support = () => {
     subject: '',
     message: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMsg, setSubmitMsg] = useState({ type: '', text: '' });
 
   useEffect(() => {
     const studentId = localStorage.getItem('studentId');
@@ -24,10 +27,33 @@ const Support = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Query submitted successfully! We will get back to you soon.');
-    setFormData({ subject: '', message: '' });
+    const studentId = localStorage.getItem('studentId');
+    if (!studentId) {
+      navigate('/crash-course/login');
+      return;
+    }
+    setSubmitting(true);
+    setSubmitMsg({ type: '', text: '' });
+    try {
+      const res = await api.post('/crashcourse/queries', {
+        studentId,
+        subject: formData.subject,
+        message: formData.message
+      });
+      if (res.data.success) {
+        setSubmitMsg({ type: 'success', text: res.data.message });
+        setFormData({ subject: '', message: '' });
+      }
+    } catch (err) {
+      setSubmitMsg({
+        type: 'error',
+        text: err.response?.data?.message || 'Failed to submit query. Please try again.'
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -97,6 +123,11 @@ const Support = () => {
         <section className="query-form-section">
           <h2 className="section-title">Submit Your Query</h2>
           <div className="query-form-card">
+            {submitMsg.text && (
+              <div className={`query-msg query-msg-${submitMsg.type}`}>
+                {submitMsg.text}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="query-form">
               <div className="form-group">
                 <label htmlFor="subject">Subject</label>
@@ -122,12 +153,12 @@ const Support = () => {
                   required
                 />
               </div>
-              <button type="submit" className="submit-query-btn">
+              <button type="submit" className="submit-query-btn" disabled={submitting}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="22" y1="2" x2="11" y2="13"></line>
                   <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
-                Submit Query
+                {submitting ? 'Submitting...' : 'Submit Query'}
               </button>
             </form>
           </div>

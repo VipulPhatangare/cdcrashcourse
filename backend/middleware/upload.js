@@ -1,39 +1,87 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Configure storage
-const storage = multer.diskStorage({
+// Ensure directories exist
+const ensureDir = (dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+// ─── Payment Screenshot Upload ────────────────────────────────────────────
+const paymentStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/payments/'); // Make sure this directory exists
+    ensureDir('uploads/payments/');
+    cb(null, 'uploads/payments/');
   },
   filename: function (req, file, cb) {
-    // Generate unique filename: timestamp-randomstring-originalname
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, 'payment-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// File filter - only images
-const fileFilter = (req, file, cb) => {
-  // Allowed extensions
+const imageFilter = (req, file, cb) => {
   const filetypes = /jpeg|jpg|png|gif|webp/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
-
   if (mimetype && extname) {
     return cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
   }
+  cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
 };
 
-// Multer upload configuration
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max file size
+  storage: paymentStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFilter
+});
+
+// ─── Profile Photo Upload ─────────────────────────────────────────────────
+const profileStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    ensureDir('uploads/profiles/');
+    cb(null, 'uploads/profiles/');
   },
-  fileFilter: fileFilter
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadProfile = multer({
+  storage: profileStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: imageFilter
+});
+
+// ─── PDF Material Upload ──────────────────────────────────────────────────
+const pdfStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    ensureDir('uploads/materials/');
+    cb(null, 'uploads/materials/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'material-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const pdfFilter = (req, file, cb) => {
+  const extname = path.extname(file.originalname).toLowerCase() === '.pdf';
+  const mimetype = file.mimetype === 'application/pdf';
+  if (mimetype && extname) {
+    return cb(null, true);
+  }
+  cb(new Error('Only PDF files are allowed'));
+};
+
+const uploadPDF = multer({
+  storage: pdfStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: pdfFilter
 });
 
 module.exports = upload;
+module.exports.uploadProfile = uploadProfile;
+module.exports.uploadPDF = uploadPDF;
