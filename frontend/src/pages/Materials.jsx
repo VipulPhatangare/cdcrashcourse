@@ -42,15 +42,23 @@ const Materials = () => {
     }
   };
 
-  const handleDownload = (filePath, name) => {
+  const handleDownload = async (filePath, name) => {
     const url = `/${filePath.replace(/\\/g, '/')}`;
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name + '.pdf';
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Download failed');
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = name + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch {
+      alert('Download failed. Please try again.');
+    }
   };
 
   return (

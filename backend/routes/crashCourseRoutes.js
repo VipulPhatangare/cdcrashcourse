@@ -13,7 +13,9 @@ const {
   resetPassword,
   getStudentMaterials,
   getStudentEvents,
-  submitQuery
+  submitQuery,
+  sendChangePasswordOTP,
+  changePassword
 } = require('../controllers/crashCourseController');
 
 // Auth & registration
@@ -36,5 +38,9 @@ router.get('/events', getStudentEvents);
 
 // Support queries
 router.post('/queries', submitQuery);
+
+// Change password (logged-in student, OTP-verified)
+router.post('/change-password-otp', sendChangePasswordOTP);
+router.post('/change-password', changePassword);
 
 module.exports = router;

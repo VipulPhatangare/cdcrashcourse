@@ -119,10 +119,10 @@ exports.verifyOTP = async (req, res) => {
 // @access  Public
 exports.registerStudent = async (req, res) => {
   try {
-    const { name, email, phone, password, transactionId } = req.body;
+    const { name, email, phone, password } = req.body;
 
     // Validate required fields
-    if (!name || !email || !phone || !password || !transactionId) {
+    if (!name || !email || !phone || !password) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields'
@@ -137,13 +137,13 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // Check if payment screenshot is uploaded
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload payment screenshot'
-      });
-    }
+    // PAYMENT DISABLED - Course is free, no screenshot required
+    // if (!req.file) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'Please upload payment screenshot'
+    //   });
+    // }
 
     // Check if email already registered
     const existingStudent = await Student.findOne({ email });
@@ -154,16 +154,16 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // Create student
+    // Create student — auto-approved since course is free
     const student = await Student.create({
       name,
       email,
       phone,
       password,
-      transactionId,
-      paymentScreenshot: req.file.path,
+      transactionId: 'FREE',       // PAYMENT DISABLED
+      paymentScreenshot: '',        // PAYMENT DISABLED
       emailVerified: true,
-      paymentStatus: 'Pending'
+      paymentStatus: 'Approved'    // PAYMENT DISABLED — auto-approve all students
     });
 
     res.status(201).json({
@@ -442,12 +442,13 @@ exports.getStudentMaterials = async (req, res) => {
       });
     }
 
-    if (student.paymentStatus !== 'Approved') {
-      return res.status(403).json({
-        success: false,
-        message: 'Materials are only available after payment approval'
-      });
-    }
+    // PAYMENT DISABLED - All enrolled students can access materials
+    // if (student.paymentStatus !== 'Approved') {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: 'Materials are only available after payment approval'
+    //   });
+    // }
 
     const materials = await Material.find().sort({ uploadedAt: -1 });
 
@@ -483,6 +484,83 @@ exports.getStudentEvents = async (req, res) => {
       success: false,
       message: 'Server error. Please try again later.'
     });
+  }
+};
+
+// ─── STUDENT: CHANGE PASSWORD (logged-in, OTP-verified) ──────────────────────
+
+// @desc    Send OTP to student's registered email for password change
+// @route   POST /api/crashcourse/change-password-otp
+// @access  Private (logged-in student)
+exports.sendChangePasswordOTP = async (req, res) => {
+  try {
+    const { studentId } = req.body;
+
+    if (!studentId) {
+      return res.status(400).json({ success: false, message: 'Student ID required' });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await OTP.deleteMany({ email: student.email });
+    await OTP.create({
+      email: student.email,
+      otp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+    });
+
+    await sendOTPEmail(student.email, otp);
+
+    res.status(200).json({ success: true, message: 'OTP sent to your registered email' });
+  } catch (error) {
+    console.error('Send Change Password OTP Error:', error);
+    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+  }
+};
+
+// @desc    Change password using OTP (for logged-in students)
+// @route   POST /api/crashcourse/change-password
+// @access  Private (logged-in student)
+exports.changePassword = async (req, res) => {
+  try {
+    const { studentId, otp, newPassword } = req.body;
+
+    if (!studentId || !otp || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide all fields' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    const otpRecord = await OTP.findOne({ email: student.email, otp });
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    }
+
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({ success: false, message: 'OTP has expired. Request a new one.' });
+    }
+
+    student.password = newPassword;
+    await student.save();
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    res.status(200).json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change Password Error:', error);
+    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
   }
 };
 

@@ -68,7 +68,8 @@ const AdminDashboard = () => {
     rejectedPayments: 0
   });
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(null);
+  // PAYMENT DISABLED
+  // const [selectedImage, setSelectedImage] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false, title: '', message: '', onConfirm: null
   });
@@ -129,35 +130,33 @@ const AdminDashboard = () => {
     } finally { setLoading(false); }
   };
 
-  const handleApprove = (id) => setConfirmDialog({
-    isOpen: true, title: 'Approve Payment',
-    message: 'Are you sure you want to approve this payment?',
-    onConfirm: () => confirmApprove(id)
-  });
-
-  const confirmApprove = async (id) => {
-    setConfirmDialog(p => ({ ...p, isOpen: false }));
-    try {
-      await api.patch(`/admin/approve/${id}`);
-      showToast('success', 'Payment approved successfully!');
-      fetchStudents();
-    } catch { showToast('error', 'Failed to approve payment'); }
-  };
-
-  const handleReject = (id) => setConfirmDialog({
-    isOpen: true, title: 'Reject Payment',
-    message: 'Are you sure you want to reject this payment?',
-    onConfirm: () => confirmReject(id)
-  });
-
-  const confirmReject = async (id) => {
-    setConfirmDialog(p => ({ ...p, isOpen: false }));
-    try {
-      await api.patch(`/admin/reject/${id}`);
-      showToast('success', 'Payment rejected');
-      fetchStudents();
-    } catch { showToast('error', 'Failed to reject payment'); }
-  };
+  // PAYMENT DISABLED — approve/reject handlers removed
+  // const handleApprove = (id) => setConfirmDialog({
+  //   isOpen: true, title: 'Approve Payment',
+  //   message: 'Are you sure you want to approve this payment?',
+  //   onConfirm: () => confirmApprove(id)
+  // });
+  // const confirmApprove = async (id) => {
+  //   setConfirmDialog(p => ({ ...p, isOpen: false }));
+  //   try {
+  //     await api.patch(`/admin/approve/${id}`);
+  //     showToast('success', 'Payment approved successfully!');
+  //     fetchStudents();
+  //   } catch { showToast('error', 'Failed to approve payment'); }
+  // };
+  // const handleReject = (id) => setConfirmDialog({
+  //   isOpen: true, title: 'Reject Payment',
+  //   message: 'Are you sure you want to reject this payment?',
+  //   onConfirm: () => confirmReject(id)
+  // });
+  // const confirmReject = async (id) => {
+  //   setConfirmDialog(p => ({ ...p, isOpen: false }));
+  //   try {
+  //     await api.patch(`/admin/reject/${id}`);
+  //     showToast('success', 'Payment rejected');
+  //     fetchStudents();
+  //   } catch { showToast('error', 'Failed to reject payment'); }
+  // };
 
   // ── Materials ──────────────────────────────────────────────────────────────
   const fetchMaterials = async () => {
@@ -390,7 +389,7 @@ const AdminDashboard = () => {
                   {NAV_ITEMS.find(n => n.key === activeTab)?.label}
                 </h2>
                 <p>
-                  {activeTab === 'students' && 'Manage student registrations and approve payments'}
+                  {activeTab === 'students' && 'Manage student registrations'}
                   {activeTab === 'materials' && 'Upload and manage PDF study materials'}
                   {activeTab === 'events' && 'Create and manage live sessions with Zoom links'}
                   {activeTab === 'queries' && 'View and resolve student support queries'}
@@ -409,7 +408,8 @@ const AdminDashboard = () => {
                 </div>
                 <div className="stat-info"><h3>{statistics.totalRegistrations}</h3><p>Total Registrations</p></div>
               </div>
-              <div className="stat-card stat-pending">
+              {/* PAYMENT DISABLED — payment stat cards hidden */}
+              {/* <div className="stat-card stat-pending">
                 <div className="stat-icon">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -433,7 +433,7 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div className="stat-info"><h3>{statistics.rejectedPayments}</h3><p>Rejected Payments</p></div>
-              </div>
+              </div> */}
             </div>
 
             {/* ── STUDENTS ──────────────────────────────────────────────────── */}
@@ -452,11 +452,13 @@ const AdminDashboard = () => {
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Transaction ID</th>
-                            <th>Screenshot</th>
+                            {/* PAYMENT DISABLED */}
+                            {/* <th>Transaction ID</th>
+                            <th>Screenshot</th> */}
                             <th>Status</th>
                             <th>Date</th>
-                            <th>Actions</th>
+                            {/* PAYMENT DISABLED */}
+                            {/* <th>Actions</th> */}
                           </tr>
                         </thead>
                         <tbody>
@@ -466,17 +468,19 @@ const AdminDashboard = () => {
                               <td>{s.name}</td>
                               <td>{s.email}</td>
                               <td>{s.phone}</td>
-                              <td><span className="txn-id">{s.transactionId}</span></td>
+                              {/* PAYMENT DISABLED */}
+                              {/* <td><span className="txn-id">{s.transactionId}</span></td>
                               <td>
                                 <button onClick={() => setSelectedImage(s.paymentScreenshot)} className="btn-view">View</button>
-                              </td>
+                              </td> */}
                               <td>
                                 <span className={`status-badge status-${s.paymentStatus.toLowerCase()}`}>
                                   {s.paymentStatus}
                                 </span>
                               </td>
                               <td className="td-date">{new Date(s.createdAt).toLocaleDateString('en-IN')}</td>
-                              <td>
+                              {/* PAYMENT DISABLED — approve/reject actions removed */}
+                              {/* <td>
                                 <div className="action-buttons">
                                   {s.paymentStatus === 'Pending' ? (
                                     <>
@@ -487,7 +491,7 @@ const AdminDashboard = () => {
                                     <span className="action-disabled">{s.paymentStatus}</span>
                                   )}
                                 </div>
-                              </td>
+                              </td> */}
                             </tr>
                           ))}
                         </tbody>
@@ -761,8 +765,8 @@ const AdminDashboard = () => {
         </main>
       </div>
 
-      {/* ── Image Modal ──────────────────────────────────────────────────────── */}
-      {selectedImage && (
+      {/* PAYMENT DISABLED — payment screenshot modal removed */}
+      {/* {selectedImage && (
         <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
@@ -770,7 +774,7 @@ const AdminDashboard = () => {
             <img src={`/${selectedImage.replace(/\\/g, '/')}`} alt="Payment Screenshot" />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ── Confirm Dialog ───────────────────────────────────────────────────── */}
       {confirmDialog.isOpen && (

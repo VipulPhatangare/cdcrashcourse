@@ -13,6 +13,16 @@ const StudentProfile = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [editData, setEditData] = useState({ name: '', phone: '', profilePhoto: null });
 
+  // Change Password state
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [cpStep, setCpStep] = useState(1); // 1 = send OTP, 2 = verify OTP + set new pass
+  const [cpOtp, setCpOtp] = useState('');
+  const [cpNewPassword, setCpNewPassword] = useState('');
+  const [cpConfirm, setCpConfirm] = useState('');
+  const [cpSending, setCpSending] = useState(false);
+  const [cpSubmitting, setCpSubmitting] = useState(false);
+  const [cpMessage, setCpMessage] = useState({ type: '', text: '' });
+
   useEffect(() => {
     const studentId = localStorage.getItem('studentId');
     if (!studentId) {
@@ -73,6 +83,55 @@ const StudentProfile = () => {
     }
   };
 
+  const handleSendChangePasswordOTP = async () => {
+    setCpSending(true);
+    setCpMessage({ type: '', text: '' });
+    const studentId = localStorage.getItem('studentId');
+    try {
+      const res = await api.post('/crashcourse/change-password-otp', { studentId });
+      if (res.data.success) {
+        setCpStep(2);
+        setCpMessage({ type: 'success', text: res.data.message });
+      }
+    } catch (err) {
+      setCpMessage({ type: 'error', text: err.response?.data?.message || 'Failed to send OTP' });
+    } finally {
+      setCpSending(false);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (cpNewPassword !== cpConfirm) {
+      setCpMessage({ type: 'error', text: 'Passwords do not match' });
+      return;
+    }
+    setCpSubmitting(true);
+    const studentId = localStorage.getItem('studentId');
+    try {
+      const res = await api.post('/crashcourse/change-password', {
+        studentId,
+        otp: cpOtp,
+        newPassword: cpNewPassword
+      });
+      if (res.data.success) {
+        setCpMessage({ type: 'success', text: 'Password changed successfully!' });
+        setTimeout(() => {
+          setChangingPassword(false);
+          setCpStep(1);
+          setCpOtp('');
+          setCpNewPassword('');
+          setCpConfirm('');
+          setCpMessage({ type: '', text: '' });
+        }, 2000);
+      }
+    } catch (err) {
+      setCpMessage({ type: 'error', text: err.response?.data?.message || 'Failed to change password' });
+    } finally {
+      setCpSubmitting(false);
+    }
+  };
+
   const getStatusClass = (status) => {
     if (status === 'Approved') return 'sp-badge approved';
     if (status === 'Rejected') return 'sp-badge rejected';
@@ -112,17 +171,27 @@ const StudentProfile = () => {
             </div>
             <h2 className="sp-name">{student?.name}</h2>
             <p className="sp-email">{student?.email}</p>
-            <span className={getStatusClass(student?.paymentStatus)}>
+            {/* PAYMENT DISABLED — payment status badge hidden */}
+            {/* <span className={getStatusClass(student?.paymentStatus)}>
               {student?.paymentStatus || 'Pending'}
-            </span>
+            </span> */}
 
-            {!editing && (
+            {!editing && !changingPassword && (
               <button className="sp-edit-btn" onClick={() => setEditing(true)}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
                 Edit Profile
+              </button>
+            )}
+            {!editing && !changingPassword && (
+              <button className="sp-change-pass-btn" onClick={() => setChangingPassword(true)}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Change Password
               </button>
             )}
           </div>
@@ -133,7 +202,7 @@ const StudentProfile = () => {
               <div className={`sp-message ${message.type}`}>{message.text}</div>
             )}
 
-            {!editing ? (
+            {!editing && !changingPassword ? (
               <div className="sp-details">
                 <h3 className="sp-section-title">Personal Information</h3>
 
@@ -169,7 +238,7 @@ const StudentProfile = () => {
                   <div className="sp-value">{student?.phone}</div>
                 </div>
 
-                <h3 className="sp-section-title" style={{ marginTop: '28px' }}>Course & Payment</h3>
+                <h3 className="sp-section-title" style={{ marginTop: '28px' }}>Course Information</h3>
 
                 <div className="sp-row">
                   <div className="sp-label">
@@ -182,7 +251,8 @@ const StudentProfile = () => {
                   <div className="sp-value">{student?.courseName}</div>
                 </div>
 
-                <div className="sp-row">
+                {/* PAYMENT DISABLED — Transaction ID, Payment Status, Payment Screenshot hidden */}
+                {/* <div className="sp-row">
                   <div className="sp-label">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -231,7 +301,7 @@ const StudentProfile = () => {
                       <span style={{ color: '#aaa' }}>Not uploaded</span>
                     )}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="sp-row">
                   <div className="sp-label">
@@ -250,7 +320,7 @@ const StudentProfile = () => {
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : editing ? (
               <form onSubmit={handleUpdate} className="sp-form">
                 <h3 className="sp-section-title">Edit Profile</h3>
 
@@ -305,6 +375,94 @@ const StudentProfile = () => {
                   </button>
                 </div>
               </form>
+            ) : (
+              <div className="sp-cp-form">
+                <h3 className="sp-section-title">Change Password</h3>
+
+                {cpMessage.text && (
+                  <div className={`sp-message ${cpMessage.type}`}>{cpMessage.text}</div>
+                )}
+
+                {cpStep === 1 ? (
+                  <div className="sp-cp-step1">
+                    <div className="sp-cp-email-box">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      <p>
+                        OTP will be sent to
+                        <strong>{student?.email}</strong>
+                      </p>
+                    </div>
+                    <div className="sp-btn-group">
+                      <button
+                        type="button"
+                        className="sp-cancel-btn"
+                        onClick={() => { setChangingPassword(false); setCpMessage({ type: '', text: '' }); }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="sp-save-btn"
+                        onClick={handleSendChangePasswordOTP}
+                        disabled={cpSending}
+                      >
+                        {cpSending ? 'Sending OTP...' : 'Send OTP'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleChangePassword} className="sp-form">
+                    <div className="sp-form-group">
+                      <label>OTP</label>
+                      <input
+                        type="text"
+                        className="otp-input"
+                        value={cpOtp}
+                        onChange={e => setCpOtp(e.target.value)}
+                        placeholder="000000"
+                        maxLength={6}
+                        required
+                      />
+                    </div>
+                    <div className="sp-form-group">
+                      <label>New Password</label>
+                      <input
+                        type="password"
+                        value={cpNewPassword}
+                        onChange={e => setCpNewPassword(e.target.value)}
+                        placeholder="Min. 6 characters"
+                        minLength={6}
+                        required
+                      />
+                    </div>
+                    <div className="sp-form-group">
+                      <label>Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={cpConfirm}
+                        onChange={e => setCpConfirm(e.target.value)}
+                        placeholder="Re-enter new password"
+                        required
+                      />
+                    </div>
+                    <div className="sp-btn-group">
+                      <button
+                        type="button"
+                        className="sp-cancel-btn"
+                        onClick={() => { setChangingPassword(false); setCpStep(1); setCpOtp(''); setCpNewPassword(''); setCpConfirm(''); setCpMessage({ type: '', text: '' }); }}
+                      >
+                        Cancel
+                      </button>
+                      <button type="submit" className="sp-save-btn" disabled={cpSubmitting}>
+                        {cpSubmitting ? 'Changing...' : 'Change Password'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             )}
           </div>
         </div>
