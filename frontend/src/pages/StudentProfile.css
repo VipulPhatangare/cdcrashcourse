@@ -146,6 +146,97 @@
   background: #0a4d8a;
 }
 
+.sp-change-pass-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  color: #0d61aa;
+  border: 2px solid #0d61aa;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sp-change-pass-btn:hover {
+  background: #eef6ff;
+}
+
+.sp-cp-info {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Change Password form wrapper */
+.sp-cp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sp-cp-form .sp-section-title {
+  margin-bottom: 24px;
+}
+
+/* Step 1 — send OTP */
+.sp-cp-step1 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sp-cp-email-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eef6ff;
+  border: 1px solid #c3daf7;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.sp-cp-email-box svg {
+  color: #0d61aa;
+  flex-shrink: 0;
+}
+
+.sp-cp-email-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.sp-cp-email-box p strong {
+  color: #0d61aa;
+  display: block;
+  font-size: 0.95rem;
+}
+
+/* OTP input — larger, monospaced */
+.sp-form-group input.otp-input {
+  font-size: 1.4rem;
+  letter-spacing: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 14px 18px;
+  border-color: #c3daf7;
+}
+
+.sp-form-group input.otp-input:focus {
+  border-color: #0d61aa;
+  background: #f5faff;
+}
+
 /* Details Card */
 .sp-details-card {
   background: #fff;
@@ -256,7 +347,8 @@
 }
 
 .sp-form-group input[type="text"],
-.sp-form-group input[type="tel"] {
+.sp-form-group input[type="tel"],
+.sp-form-group input[type="password"] {
   padding: 11px 14px;
   border: 2px solid #e8e8e8;
   border-radius: 10px;
@@ -267,7 +359,8 @@
 }
 
 .sp-form-group input[type="text"]:focus,
-.sp-form-group input[type="tel"]:focus {
+.sp-form-group input[type="tel"]:focus,
+.sp-form-group input[type="password"]:focus {
   border-color: #0d61aa;
 }
 

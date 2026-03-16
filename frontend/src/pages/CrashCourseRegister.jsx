@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
-import paymentQR from '../assets/QR-code.jpg';
-import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
-import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
+// PAYMENT DISABLED — imports no longer needed
+// import paymentQR from '../assets/QR-code.jpg';
+// import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
+// import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
 import './CrashCourseRegister.css';
 
 const CrashCourseRegister = () => {
@@ -21,13 +22,15 @@ const CrashCourseRegister = () => {
     password: '',
     confirmPassword: '',
     otp: '',
-    transactionId: '',
-    paymentScreenshot: null
+    // PAYMENT DISABLED
+    // transactionId: '',
+    // paymentScreenshot: null
   });
 
   const [otpSent, setOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  const [lightboxImg, setLightboxImg] = useState(null);
+  // PAYMENT DISABLED
+  // const [lightboxImg, setLightboxImg] = useState(null);
 
   // Handle input change
   const handleChange = (e) => {
@@ -38,13 +41,13 @@ const CrashCourseRegister = () => {
     }));
   };
 
-  // Handle file change
-  const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      paymentScreenshot: e.target.files[0]
-    }));
-  };
+  // PAYMENT DISABLED
+  // const handleFileChange = (e) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     paymentScreenshot: e.target.files[0]
+  //   }));
+  // };
 
   // Send OTP
   const handleSendOTP = async () => {
@@ -103,10 +106,10 @@ const CrashCourseRegister = () => {
     }
   };
 
-  // Handle Step 1 - Personal Information
-  const handleStep1Submit = (e) => {
+  // Handle Step 1 - Personal Information (now directly registers, payment step removed)
+  const handleStep1Submit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.phone || !formData.email || !formData.password || !formData.confirmPassword) {
       setMessage({ type: 'error', text: 'Please fill all fields' });
       return;
@@ -127,35 +130,16 @@ const CrashCourseRegister = () => {
       return;
     }
 
-    setCurrentStep(2);
-    setMessage({ type: '', text: '' });
-  };
-
-  // Handle Step 2 - Payment Verification
-  const handleStep2Submit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.transactionId || !formData.paymentScreenshot) {
-      setMessage({ type: 'error', text: 'Please provide transaction ID and payment screenshot' });
-      return;
-    }
-
+    // PAYMENT DISABLED — submit registration directly (course is free)
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
-      formDataToSend.append('password', formData.password);
-      formDataToSend.append('transactionId', formData.transactionId);
-      formDataToSend.append('paymentScreenshot', formData.paymentScreenshot);
-
-      const response = await api.post('/crashcourse/register', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const response = await api.post('/crashcourse/register', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password
       });
 
       if (response.data.success) {
@@ -163,14 +147,48 @@ const CrashCourseRegister = () => {
         setCurrentStep(3);
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Registration failed' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Registration failed'
       });
     } finally {
       setLoading(false);
     }
   };
+
+  // PAYMENT DISABLED
+  // const handleStep2Submit = async (e) => {
+  //   e.preventDefault();
+  //   if (!formData.transactionId || !formData.paymentScreenshot) {
+  //     setMessage({ type: 'error', text: 'Please provide transaction ID and payment screenshot' });
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   setMessage({ type: '', text: '' });
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append('name', formData.name);
+  //     formDataToSend.append('email', formData.email);
+  //     formDataToSend.append('phone', formData.phone);
+  //     formDataToSend.append('password', formData.password);
+  //     formDataToSend.append('transactionId', formData.transactionId);
+  //     formDataToSend.append('paymentScreenshot', formData.paymentScreenshot);
+  //     const response = await api.post('/crashcourse/register', formDataToSend, {
+  //       headers: { 'Content-Type': 'multipart/form-data' }
+  //     });
+  //     if (response.data.success) {
+  //       localStorage.setItem('studentId', response.data.data.studentId);
+  //       setCurrentStep(3);
+  //     }
+  //   } catch (error) {
+  //     setMessage({
+  //       type: 'error',
+  //       text: error.response?.data?.message || 'Registration failed'
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Navigate to profile
   const handleViewProfile = () => {
@@ -203,14 +221,15 @@ const CrashCourseRegister = () => {
               <div className="step-number">1</div>
               <div className="step-label">Personal Info</div>
             </div>
-            <div className={`progress-line ${currentStep >= 2 ? 'active' : ''}`}></div>
+            {/* PAYMENT DISABLED — step 2 removed */}
+            {/* <div className={`progress-line ${currentStep >= 2 ? 'active' : ''}`}></div>
             <div className={`progress-step ${currentStep >= 2 ? 'active' : ''}`}>
               <div className="step-number">2</div>
               <div className="step-label">Payment</div>
-            </div>
+            </div> */}
             <div className={`progress-line ${currentStep >= 3 ? 'active' : ''}`}></div>
             <div className={`progress-step ${currentStep >= 3 ? 'active' : ''}`}>
-              <div className="step-number">3</div>
+              <div className="step-number">2</div>
               <div className="step-label">Success</div>
             </div>
           </div>
@@ -332,26 +351,22 @@ const CrashCourseRegister = () => {
                 />
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn-primary btn-full"
                 disabled={loading}
               >
-                Continue to Payment
+                {loading ? 'Registering...' : 'Register Now'}
               </button>
             </form>
           )}
 
-          {/* Step 2: Payment */}
-          {currentStep === 2 && (
+          {/* PAYMENT DISABLED — Step 2 (Payment) removed */}
+          {/* {currentStep === 2 && (
             <form onSubmit={handleStep2Submit} className="step-form">
               <h2>Payment</h2>
-              
               <div className="payment-info">
-                <div className="payment-amount">
-                  <h3>Course Fee: ₹999</h3>
-                </div>
-                
+                <div className="payment-amount"><h3>Course Fee: ₹999</h3></div>
                 <div className="qr-section">
                   <h4>Scan QR Code to Pay</h4>
                   <div className="qr-image-wrapper">
@@ -362,75 +377,42 @@ const CrashCourseRegister = () => {
                   </p>
                 </div>
               </div>
-
               <div className="form-group">
                 <label>Transaction ID *</label>
-                <input
-                  type="text"
-                  name="transactionId"
-                  value={formData.transactionId}
-                  onChange={handleChange}
-                  placeholder="Enter transaction ID from payment app"
-                  required
-                />
+                <input type="text" name="transactionId" value={formData.transactionId}
+                  onChange={handleChange} placeholder="Enter transaction ID from payment app" required />
               </div>
-
               <div className="form-group">
                 <label>Payment Screenshot *</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  required
-                />
+                <input type="file" accept="image/*" onChange={handleFileChange} required />
                 {formData.paymentScreenshot && (
-                  <small className="file-selected">
-                    Selected: {formData.paymentScreenshot.name}
-                  </small>
+                  <small className="file-selected">Selected: {formData.paymentScreenshot.name}</small>
                 )}
               </div>
-
               <div className="sample-screenshots">
                 <h4>Sample Payment Screenshots</h4>
                 <p className="sample-hint">Your screenshot should look similar to one of these:</p>
                 <div className="sample-grid">
                   <div className="sample-item">
                     <img src={gpayScreenshot} alt="Google Pay sample screenshot" />
-                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: gpayScreenshot, label: 'Google Pay' })}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                      View Full Image
-                    </button>
+                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: gpayScreenshot, label: 'Google Pay' })}>View Full Image</button>
                     <span>Google Pay</span>
                   </div>
                   <div className="sample-item">
                     <img src={phonePeScreenshot} alt="PhonePe sample screenshot" />
-                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: phonePeScreenshot, label: 'PhonePe' })}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                      View Full Image
-                    </button>
+                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: phonePeScreenshot, label: 'PhonePe' })}>View Full Image</button>
                     <span>PhonePe</span>
                   </div>
                 </div>
               </div>
-
               <div className="button-group">
-                <button 
-                  type="button" 
-                  onClick={() => setCurrentStep(1)}
-                  className="btn-secondary"
-                >
-                  Back
-                </button>
-                <button 
-                  type="submit" 
-                  className="btn-primary"
-                  disabled={loading}
-                >
+                <button type="button" onClick={() => setCurrentStep(1)} className="btn-secondary">Back</button>
+                <button type="submit" className="btn-primary" disabled={loading}>
                   {loading ? 'Submitting...' : 'Submit Registration'}
                 </button>
               </div>
             </form>
-          )}
+          )} */}
 
           {/* Step 3: Success */}
           {currentStep === 3 && (
@@ -445,8 +427,7 @@ const CrashCourseRegister = () => {
                 Thank you for registering for the <strong>Campus Dekho Crash Course</strong>.
               </p>
               <p>
-                Your registration has been submitted successfully. Our team will verify your 
-                payment and contact you soon.
+                You now have full access to course materials and live sessions.
               </p>
               <button 
                 onClick={handleViewProfile}
@@ -459,8 +440,8 @@ const CrashCourseRegister = () => {
         </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxImg && (
+      {/* PAYMENT DISABLED — Lightbox removed */}
+      {/* {lightboxImg && (
         <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
           <div className="lightbox-box" onClick={e => e.stopPropagation()}>
             <div className="lightbox-header">
@@ -472,7 +453,7 @@ const CrashCourseRegister = () => {
             <img src={lightboxImg.src} alt={lightboxImg.label} className="lightbox-img" />
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Footer */}
       <footer className="footer">
