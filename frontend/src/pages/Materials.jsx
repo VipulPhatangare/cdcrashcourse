@@ -43,7 +43,7 @@ const Materials = () => {
   };
 
   const handleDownload = (filePath, name) => {
-    const url = `/${filePath.replace(/\\/g, '/')}`;
+    const url = `${import.meta.env.VITE_SERVER_URL || ''}/${filePath.replace(/\\/g, '/')}`;
     const a = document.createElement('a');
     a.href = url;
     a.download = name + '.pdf';

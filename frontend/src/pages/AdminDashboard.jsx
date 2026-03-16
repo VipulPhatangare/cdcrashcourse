@@ -576,7 +576,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="admin-list-actions">
                             <a
-                              href={`/${mat.filePath.replace(/\\/g, '/')}`}
+                              href={`${import.meta.env.VITE_SERVER_URL || ''}/${mat.filePath.replace(/\\/g, '/')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn-view"
@@ -767,7 +767,7 @@ const AdminDashboard = () => {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
             <p className="modal-label">Payment Screenshot</p>
-            <img src={`/${selectedImage.replace(/\\/g, '/')}`} alt="Payment Screenshot" />
+            <img src={`${import.meta.env.VITE_SERVER_URL || ''}/${selectedImage.replace(/\\/g, '/')}`} alt="Payment Screenshot" />
           </div>
         </div>
       )}

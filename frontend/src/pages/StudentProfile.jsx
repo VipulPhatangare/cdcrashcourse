@@ -105,7 +105,7 @@ const StudentProfile = () => {
           <div className="sp-avatar-card">
             <div className="sp-avatar">
               {student?.profilePhoto ? (
-                <img src={`http://localhost:5000/${student.profilePhoto}`} alt="Profile" />
+                <img src={`${import.meta.env.VITE_SERVER_URL || ''}/${student.profilePhoto.replace(/\\/g, '/')}`} alt="Profile" />
               ) : (
                 <span>{initials}</span>
               )}
