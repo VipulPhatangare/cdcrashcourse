@@ -5,6 +5,7 @@ const { uploadPDF } = require('../middleware/upload');
 const {
   login,
   getStudents,
+  deleteStudent,
   approvePayment,
   rejectPayment,
   getStatistics,
@@ -23,6 +24,7 @@ router.post('/login', login);
 
 // Student management
 router.get('/students', protect, getStudents);
+router.delete('/students/:id', protect, deleteStudent);
 router.get('/statistics', protect, getStatistics);
 router.patch('/approve/:id', protect, approvePayment);
 router.patch('/reject/:id', protect, rejectPayment);
