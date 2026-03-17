@@ -246,10 +246,11 @@ exports.uploadMaterial = async (req, res) => {
       });
     }
 
+    const relativePath = req.file.path.replace(/\\/g, '/').split(/[\\/]/).slice(-2).join('/');
     const material = await Material.create({
       name,
       description,
-      filePath: req.file.path.replace(/\\/g, '/'),
+      filePath: relativePath,
       originalName: req.file.originalname
     });
 
@@ -273,10 +274,14 @@ exports.uploadMaterial = async (req, res) => {
 exports.getMaterials = async (req, res) => {
   try {
     const materials = await Material.find().sort({ uploadedAt: -1 });
+    const materialsWithUrls = materials.map(m => ({
+      ...m.toObject(),
+      fileUrl: `/uploads/${m.filePath}`
+    }));
 
     res.status(200).json({
       success: true,
-      data: materials
+      data: materialsWithUrls
     });
   } catch (error) {
     console.error('Get Materials Error:', error);
@@ -301,9 +306,10 @@ exports.deleteMaterial = async (req, res) => {
       });
     }
 
-    // Delete file from disk
-    if (fs.existsSync(material.filePath)) {
-      fs.unlinkSync(material.filePath);
+    // Delete file from disk (reconstruct full path)
+    const fullPath = path.join(__dirname, '..', 'uploads', material.filePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
     }
 
     await material.deleteOne();

@@ -451,10 +451,14 @@ exports.getStudentMaterials = async (req, res) => {
     // }
 
     const materials = await Material.find().sort({ uploadedAt: -1 });
+    const materialsWithUrls = materials.map(m => ({
+      ...m.toObject(),
+      fileUrl: `/uploads/${m.filePath}`
+    }));
 
     res.status(200).json({
       success: true,
-      data: materials
+      data: materialsWithUrls
     });
   } catch (error) {
     console.error('Get Student Materials Error:', error);

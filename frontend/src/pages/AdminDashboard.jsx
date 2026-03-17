@@ -597,7 +597,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="admin-list-actions">
                             <a
-                              href={`${import.meta.env.VITE_SERVER_URL || ''}/${mat.filePath.replace(/\\/g, '/')}`}
+                              href={`${import.meta.env.VITE_SERVER_URL || ''}${mat.fileUrl}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="btn-view"
