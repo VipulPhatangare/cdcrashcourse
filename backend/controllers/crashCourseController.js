@@ -494,15 +494,24 @@ exports.getStudentEvents = async (req, res) => {
 // @access  Private (logged-in student)
 exports.sendChangePasswordOTP = async (req, res) => {
   try {
-    const { studentId } = req.body;
+    const { studentId, newPassword } = req.body;
 
-    if (!studentId) {
-      return res.status(400).json({ success: false, message: 'Student ID required' });
+    if (!studentId || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Student ID and new password required' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
     const student = await Student.findById(studentId);
     if (!student) {
       return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    const isSame = await student.comparePassword(newPassword);
+    if (isSame) {
+      return res.status(400).json({ success: false, message: 'New password must be different from current password' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();

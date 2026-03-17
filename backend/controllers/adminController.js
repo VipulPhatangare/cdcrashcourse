@@ -192,6 +192,35 @@ exports.getStatistics = async (req, res) => {
   }
 };
 
+// @desc    Delete a student
+// @route   DELETE /api/admin/students/:id
+// @access  Private (Admin)
+exports.deleteStudent = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    await student.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Student deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete Student Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
 // ─── MATERIALS ────────────────────────────────────────────────────────────────
 
 // @desc    Upload a PDF material

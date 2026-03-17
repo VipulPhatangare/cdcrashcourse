@@ -158,6 +158,21 @@ const AdminDashboard = () => {
   //   } catch { showToast('error', 'Failed to reject payment'); }
   // };
 
+  const handleDeleteStudent = (id) => setConfirmDialog({
+    isOpen: true, title: 'Delete Student',
+    message: 'Are you sure you want to delete this student? This action cannot be undone.',
+    onConfirm: () => confirmDeleteStudent(id)
+  });
+
+  const confirmDeleteStudent = async (id) => {
+    setConfirmDialog(p => ({ ...p, isOpen: false }));
+    try {
+      await api.delete(`/admin/students/${id}`);
+      setStudents(prev => prev.filter(s => s._id !== id));
+      showToast('success', 'Student deleted successfully');
+    } catch { showToast('error', 'Failed to delete student'); }
+  };
+
   // ── Materials ──────────────────────────────────────────────────────────────
   const fetchMaterials = async () => {
     setMatLoading(true);
@@ -457,8 +472,7 @@ const AdminDashboard = () => {
                             <th>Screenshot</th> */}
                             <th>Status</th>
                             <th>Date</th>
-                            {/* PAYMENT DISABLED */}
-                            {/* <th>Actions</th> */}
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -479,6 +493,9 @@ const AdminDashboard = () => {
                                 </span>
                               </td>
                               <td className="td-date">{new Date(s.createdAt).toLocaleDateString('en-IN')}</td>
+                              <td>
+                                <button onClick={() => handleDeleteStudent(s._id)} className="btn-reject">Delete</button>
+                              </td>
                               {/* PAYMENT DISABLED — approve/reject actions removed */}
                               {/* <td>
                                 <div className="action-buttons">

@@ -84,11 +84,19 @@ const StudentProfile = () => {
   };
 
   const handleSendChangePasswordOTP = async () => {
+    if (cpNewPassword.length < 6) {
+      setCpMessage({ type: 'error', text: 'Password must be at least 6 characters' });
+      return;
+    }
+    if (cpNewPassword !== cpConfirm) {
+      setCpMessage({ type: 'error', text: 'Passwords do not match' });
+      return;
+    }
     setCpSending(true);
     setCpMessage({ type: '', text: '' });
     const studentId = localStorage.getItem('studentId');
     try {
-      const res = await api.post('/crashcourse/change-password-otp', { studentId });
+      const res = await api.post('/crashcourse/change-password-otp', { studentId, newPassword: cpNewPassword });
       if (res.data.success) {
         setCpStep(2);
         setCpMessage({ type: 'success', text: res.data.message });
@@ -102,10 +110,6 @@ const StudentProfile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    if (cpNewPassword !== cpConfirm) {
-      setCpMessage({ type: 'error', text: 'Passwords do not match' });
-      return;
-    }
     setCpSubmitting(true);
     const studentId = localStorage.getItem('studentId');
     try {
@@ -384,49 +388,7 @@ const StudentProfile = () => {
                 )}
 
                 {cpStep === 1 ? (
-                  <div className="sp-cp-step1">
-                    <div className="sp-cp-email-box">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                      </svg>
-                      <p>
-                        OTP will be sent to
-                        <strong>{student?.email}</strong>
-                      </p>
-                    </div>
-                    <div className="sp-btn-group">
-                      <button
-                        type="button"
-                        className="sp-cancel-btn"
-                        onClick={() => { setChangingPassword(false); setCpMessage({ type: '', text: '' }); }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="sp-save-btn"
-                        onClick={handleSendChangePasswordOTP}
-                        disabled={cpSending}
-                      >
-                        {cpSending ? 'Sending OTP...' : 'Send OTP'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <form onSubmit={handleChangePassword} className="sp-form">
-                    <div className="sp-form-group">
-                      <label>OTP</label>
-                      <input
-                        type="text"
-                        className="otp-input"
-                        value={cpOtp}
-                        onChange={e => setCpOtp(e.target.value)}
-                        placeholder="000000"
-                        maxLength={6}
-                        required
-                      />
-                    </div>
+                  <div className="sp-form">
                     <div className="sp-form-group">
                       <label>New Password</label>
                       <input
@@ -435,7 +397,6 @@ const StudentProfile = () => {
                         onChange={e => setCpNewPassword(e.target.value)}
                         placeholder="Min. 6 characters"
                         minLength={6}
-                        required
                       />
                     </div>
                     <div className="sp-form-group">
@@ -445,6 +406,44 @@ const StudentProfile = () => {
                         value={cpConfirm}
                         onChange={e => setCpConfirm(e.target.value)}
                         placeholder="Re-enter new password"
+                      />
+                    </div>
+                    <div className="sp-btn-group">
+                      <button
+                        type="button"
+                        className="sp-cancel-btn"
+                        onClick={() => { setChangingPassword(false); setCpNewPassword(''); setCpConfirm(''); setCpMessage({ type: '', text: '' }); }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="sp-save-btn"
+                        onClick={handleSendChangePasswordOTP}
+                        disabled={cpSending}
+                      >
+                        {cpSending ? 'Sending OTP...' : 'Continue'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleChangePassword} className="sp-form">
+                    <div className="sp-cp-email-box">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                      <p>OTP sent to <strong>{student?.email}</strong></p>
+                    </div>
+                    <div className="sp-form-group">
+                      <label>Enter OTP</label>
+                      <input
+                        type="text"
+                        className="otp-input"
+                        value={cpOtp}
+                        onChange={e => setCpOtp(e.target.value)}
+                        placeholder="000000"
+                        maxLength={6}
                         required
                       />
                     </div>
@@ -457,7 +456,7 @@ const StudentProfile = () => {
                         Cancel
                       </button>
                       <button type="submit" className="sp-save-btn" disabled={cpSubmitting}>
-                        {cpSubmitting ? 'Changing...' : 'Change Password'}
+                        {cpSubmitting ? 'Changing...' : 'Confirm & Save'}
                       </button>
                     </div>
                   </form>
