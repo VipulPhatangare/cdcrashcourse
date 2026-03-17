@@ -5,9 +5,9 @@ import logo from '../assets/Both Logo.png';
 import AuthPopupAlert from '../components/AuthPopupAlert';
 import './ForgotPassword.css';
 
-const ForgotPassword = () => {
+const TeacherForgotPassword = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: Email, 2: OTP + Password
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -18,10 +18,9 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [countdown, setCountdown] = useState(0);
 
-  // Send OTP to email
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       setMessage({ type: 'error', text: 'Please enter your email' });
       return;
@@ -31,24 +30,23 @@ const ForgotPassword = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.post('/crashcourse/forgot-password', { email });
-      
+      const response = await api.post('/teacher/forgot-password', { email });
+
       if (response.data.success) {
         setStep(2);
         setMessage({ type: 'success', text: 'OTP sent to your email' });
         startCountdown();
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Failed to send OTP' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Failed to send OTP'
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Reset password
   const handleResetPassword = async (e) => {
     e.preventDefault();
 
@@ -71,8 +69,8 @@ const ForgotPassword = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.post('/crashcourse/reset-password', { 
-        email, 
+      const response = await api.post('/teacher/reset-password', {
+        email,
         otp,
         newPassword
       });
@@ -80,32 +78,29 @@ const ForgotPassword = () => {
       if (response.data.success) {
         setMessage({ type: 'success', text: 'Password reset successful! Redirecting to login...' });
         setTimeout(() => {
-          navigate('/crash-course/login');
+          navigate('/teacher');
         }, 2000);
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Password reset failed' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Password reset failed'
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Resend OTP
   const handleResendOTP = async () => {
     if (countdown > 0) return;
-    
     setOtp('');
     await handleSendOTP({ preventDefault: () => {} });
   };
 
-  // Countdown timer for resend
   const startCountdown = () => {
     setCountdown(60);
     const timer = setInterval(() => {
-      setCountdown(prev => {
+      setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
           return 0;
@@ -118,15 +113,14 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-password-container">
       <AuthPopupAlert message={message} onClose={() => setMessage({ type: '', text: '' })} />
-      {/* Navbar */}
       <nav className="navbar">
         <div className="nav-content">
-          <Link to="/crash-course" className="logo-link">
+          <Link to="/teacher" className="logo-link">
             <img src={logo} alt="Campus Dekho" className="logo" />
           </Link>
           <div className="nav-links">
-            <Link to="/crash-course/login" className="student-link">Login</Link>
-            <Link to="/crash-course/register" className="register-link">Register</Link>
+            <Link to="/teacher" className="student-link">Teacher Login</Link>
+            <Link to="/teacher/register" className="register-link">Register</Link>
           </div>
         </div>
       </nav>
@@ -134,7 +128,7 @@ const ForgotPassword = () => {
       <div className="forgot-password-content">
         <div className="forgot-password-card">
           <div className="forgot-password-header">
-            <h2>Reset Password</h2>
+            <h2>Teacher Reset Password</h2>
             <p>{step === 1 ? 'Enter your email to receive OTP' : 'Enter OTP and new password'}</p>
           </div>
 
@@ -152,11 +146,7 @@ const ForgotPassword = () => {
                 />
               </div>
 
-              <button 
-                type="submit" 
-                className="btn-primary btn-full"
-                disabled={loading}
-              >
+              <button type="submit" className="btn-primary btn-full" disabled={loading}>
                 {loading ? 'Sending OTP...' : 'Send OTP'}
               </button>
             </form>
@@ -173,9 +163,7 @@ const ForgotPassword = () => {
                   maxLength="6"
                   required
                 />
-                <small className="help-text">
-                  OTP sent to {email}
-                </small>
+                <small className="help-text">OTP sent to {email}</small>
               </div>
 
               <div className="form-group">
@@ -266,11 +254,7 @@ const ForgotPassword = () => {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="btn-primary btn-full"
-                disabled={loading}
-              >
+              <button type="submit" className="btn-primary btn-full" disabled={loading}>
                 {loading ? 'Resetting...' : 'Reset Password'}
               </button>
 
@@ -278,11 +262,7 @@ const ForgotPassword = () => {
                 {countdown > 0 ? (
                   <p>Resend OTP in {countdown}s</p>
                 ) : (
-                  <button 
-                    type="button" 
-                    onClick={handleResendOTP}
-                    className="btn-link"
-                  >
+                  <button type="button" onClick={handleResendOTP} className="btn-link">
                     Resend OTP
                   </button>
                 )}
@@ -305,57 +285,12 @@ const ForgotPassword = () => {
           )}
 
           <div className="forgot-password-footer">
-            <p>
-              Remember your password? <Link to="/crash-course/login">Login here</Link>
-            </p>
+            <p>Remember your password? <Link to="/teacher">Login here</Link></p>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <img src={logo} alt="Campus Dekho" className="footer-logo" />
-            <p className="footer-description">
-              Your trusted counselling partner for Engineering, Pharmacy & Management admissions in Maharashtra.
-            </p>
-          </div>
-          
-          <div className="footer-section">
-            <h3>Quick Links</h3>
-            <ul className="footer-links">
-              <li><Link to="/crash-course">Home</Link></li>
-              <li><Link to="/crash-course/register">Register</Link></li>
-              <li><Link to="/crash-course/login">Login</Link></li>
-            </ul>
-          </div>
-          
-          <div className="footer-section">
-            <h3>Resources</h3>
-            <ul className="footer-links">
-              <li><a href="#">Blog & News</a></li>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
-            </ul>
-          </div>
-          
-          <div className="footer-section">
-            <h3>Contact</h3>
-            <ul className="footer-contact">
-              <li>campusdekho.ai</li>
-              <li>info@campusdekho.ai</li>
-              <li>+91 xxxxxxxxxx</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="footer-bottom">
-          <p>&copy; 2026 Campus Dekho. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 };
 
-export default ForgotPassword;
+export default TeacherForgotPassword;

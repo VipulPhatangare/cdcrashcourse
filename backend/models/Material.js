@@ -6,6 +6,11 @@ const materialSchema = new mongoose.Schema({
     required: [true, 'Please provide material name'],
     trim: true
   },
+  subject: {
+    type: String,
+    required: [true, 'Please provide material subject'],
+    trim: true
+  },
   description: {
     type: String,
     trim: true,

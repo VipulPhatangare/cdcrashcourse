@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
 import AuthPopupAlert from '../components/AuthPopupAlert';
 import './AdminLogin.css';
 
-const AdminLogin = () => {
+const TeacherLogin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -29,24 +29,26 @@ const AdminLogin = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.post('/admin/login', formData);
+      const response = await api.post('/teacher/login', formData);
 
       if (response.data.success) {
         // Store token
-        localStorage.setItem('adminToken', response.data.data.token);
-        localStorage.setItem('adminEmail', response.data.data.admin.email);
-        
+        localStorage.setItem('teacherToken', response.data.data.token);
+        localStorage.setItem('teacherName', response.data.data.teacher.name);
+        localStorage.setItem('teacherEmail', response.data.data.teacher.email);
+        localStorage.setItem('teacherId', response.data.data.teacher.id);
+
         setMessage({ type: 'success', text: 'Login successful!' });
-        
+
         // Navigate to dashboard
         setTimeout(() => {
-          navigate('/admin/dashboard');
+          navigate('/teacher/dashboard');
         }, 1000);
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Login failed' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Login failed'
       });
     } finally {
       setLoading(false);
@@ -59,7 +61,7 @@ const AdminLogin = () => {
       <div className="login-card">
         <div className="login-header">
           <img src={logo} alt="Campus Dekho" className="login-logo" />
-          <h2>Admin Login</h2>
+          <h2>Teacher Login</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -70,7 +72,7 @@ const AdminLogin = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter admin email"
+              placeholder="Enter teacher email"
               required
             />
           </div>
@@ -118,21 +120,30 @@ const AdminLogin = () => {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-login"
             disabled={loading}
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+
+          <div style={{ marginTop: '12px', textAlign: 'right' }}>
+            <Link to="/teacher/forgot-password" style={{ color: '#0d61aa', fontWeight: 600, textDecoration: 'none' }}>
+              Forgot Password?
+            </Link>
+          </div>
         </form>
 
         <div className="login-footer">
-          <p>Crash Course Admin Panel</p>
+          <p>Crash Course Teacher Panel</p>
+          <p style={{ marginTop: '8px' }}>
+            New teacher? <Link to="/teacher/register" style={{ color: '#0d61aa', fontWeight: '600' }}>Register here</Link>
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default AdminLogin;
+export default TeacherLogin;

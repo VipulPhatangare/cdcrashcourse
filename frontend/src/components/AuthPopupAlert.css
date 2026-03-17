@@ -1,0 +1,98 @@
+.auth-popup-alert {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  min-width: 300px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe3ea;
+  border-left-width: 5px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  z-index: 20000;
+  animation: authPopupSlideIn 0.24s ease;
+}
+
+.auth-popup-text {
+  margin: 0;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.auth-popup-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-popup-close {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-popup-close:hover {
+  color: #111827;
+}
+
+.auth-popup-success {
+  border-left-color: #10b981;
+}
+
+.auth-popup-success .auth-popup-icon {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.auth-popup-error {
+  border-left-color: #ef4444;
+}
+
+.auth-popup-error .auth-popup-icon {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.auth-popup-info {
+  border-left-color: #0d61aa;
+}
+
+.auth-popup-info .auth-popup-icon {
+  background: #eff6ff;
+  color: #0d61aa;
+}
+
+@keyframes authPopupSlideIn {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-popup-alert {
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+}

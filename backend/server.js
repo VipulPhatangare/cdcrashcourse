@@ -14,15 +14,27 @@ connectDB();
 const app = express();
 
 // Middleware
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+const normalizeOrigin = (value) => value.trim().replace(/\/+$/, '').toLowerCase();
+
+const envOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
-  .map(o => o.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  ...envOrigins
+].map(normalizeOrigin);
+
+const allowedOriginSet = new Set(allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOriginSet.has(normalizedOrigin)) return callback(null, true);
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true
@@ -36,10 +48,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Import routes
 const crashCourseRoutes = require('./routes/crashCourseRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
 
 // Use routes
 app.use('/api/crashcourse', crashCourseRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/teacher', teacherRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -73,4 +87,5 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  console.log(`Allowed CORS origins: ${Array.from(allowedOriginSet).join(', ')}`);
 });

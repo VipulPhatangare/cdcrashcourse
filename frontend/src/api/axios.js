@@ -11,10 +11,21 @@ const api = axios.create({
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Check for teacher token first (if it's a teacher route)
+  if (config.url?.includes('/teacher')) {
+    const teacherToken = localStorage.getItem('teacherToken');
+    if (teacherToken) {
+      config.headers.Authorization = `Bearer ${teacherToken}`;
+      return config;
+    }
   }
+
+  // Check for admin token
+  const adminToken = localStorage.getItem('adminToken');
+  if (adminToken) {
+    config.headers.Authorization = `Bearer ${adminToken}`;
+  }
+
   return config;
 });
 

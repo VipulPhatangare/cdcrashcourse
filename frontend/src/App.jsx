@@ -5,6 +5,12 @@ import StudentLogin from './pages/StudentLogin';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import TeacherLogin from './pages/TeacherLogin';
+import TeacherRegister from './pages/TeacherRegister';
+import TeacherForgotPassword from './pages/TeacherForgotPassword';
+import TeacherMaterials from './pages/TeacherMaterials';
+import TeacherEvents from './pages/TeacherEvents';
+import TeacherProfile from './pages/TeacherProfile';
 import Home from './pages/Home';
 import Events from './pages/Events';
 import Materials from './pages/Materials';
@@ -22,6 +28,13 @@ function App() {
         <Route path="/crash-course/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/teacher" element={<TeacherLogin />} />
+        <Route path="/teacher/register" element={<TeacherRegister />} />
+        <Route path="/teacher/forgot-password" element={<TeacherForgotPassword />} />
+        <Route path="/teacher/dashboard" element={<Navigate to="/teacher/materials" replace />} />
+        <Route path="/teacher/materials" element={<TeacherMaterials />} />
+        <Route path="/teacher/events" element={<TeacherEvents />} />
+        <Route path="/teacher/profile" element={<TeacherProfile />} />
         <Route path="/crash-course/home" element={<Home />} />
         <Route path="/crash-course/events" element={<Events />} />
         <Route path="/crash-course/materials" element={<Materials />} />

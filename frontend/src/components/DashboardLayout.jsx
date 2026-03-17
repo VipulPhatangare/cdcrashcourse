@@ -88,7 +88,10 @@ const DashboardLayout = ({ children }) => {
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-        <img src={botLogo} alt="Campus Dekho" className="topbar-logo" />
+        <div className="topbar-brand">
+          <img src={botLogo} alt="Campus Dekho" className="topbar-logo" />
+          <span className="topbar-panel-type">Student Dashboard</span>
+        </div>
         <div className="topbar-right">
           <Link to="/crash-course/my-profile" className="topbar-avatar">
             {initials}

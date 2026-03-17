@@ -317,7 +317,7 @@ const AdminDashboard = () => {
         <div className="admin-topbar-brand">
           <div className="admin-topbar-titles">
             <span className="admin-topbar-name">Campus Dekho</span>
-            <span className="admin-topbar-sub">Admin Panel</span>
+            <span className="admin-topbar-sub">Admin Dashboard</span>
           </div>
         </div>
 
