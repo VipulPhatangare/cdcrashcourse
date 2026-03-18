@@ -289,6 +289,12 @@ const AdminDashboard = () => {
   };
 
   const openQueryCount = queries.filter(q => q.status === 'Open').length;
+  const isRecentlyUploaded = (uploadedAt) => {
+    const uploadedTime = new Date(uploadedAt).getTime();
+    if (Number.isNaN(uploadedTime)) return false;
+    const twoDays = 2 * 24 * 60 * 60 * 1000;
+    return Date.now() - uploadedTime <= twoDays;
+  };
 
   if (loading) {
     return (
@@ -591,7 +597,15 @@ const AdminDashboard = () => {
                             </svg>
                           </div>
                           <div className="admin-list-info">
-                            <strong>{mat.name}</strong>
+                            <strong>
+                              {mat.name}
+                              {isRecentlyUploaded(mat.uploadedAt) && (
+                                <>
+                                  <span className="admin-new-star">*</span>
+                                  <span className="admin-new-pill">NEW</span>
+                                </>
+                              )}
+                            </strong>
                             <span>{mat.description}</span>
                             <small>Uploaded: {new Date(mat.uploadedAt).toLocaleDateString('en-IN')}</small>
                           </div>

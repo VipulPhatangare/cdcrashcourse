@@ -8,6 +8,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [latestMaterial, setLatestMaterial] = useState(null);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
 
   useEffect(() => {
     const studentId = localStorage.getItem('studentId');
@@ -34,8 +36,38 @@ const Home = () => {
       }
     };
 
+    const fetchLatestMaterial = async () => {
+      setMaterialsLoading(true);
+      try {
+        const res = await api.get(`/crashcourse/materials/${studentId}`);
+        if (res.data.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const sorted = [...res.data.data].sort((a, b) =>
+            new Date(b.uploadedAt || b.createdAt || 0) - new Date(a.uploadedAt || a.createdAt || 0)
+          );
+          setLatestMaterial(sorted[0]);
+        } else {
+          setLatestMaterial(null);
+        }
+      } catch {
+        setLatestMaterial(null);
+      } finally {
+        setMaterialsLoading(false);
+      }
+    };
+
     fetchStudent();
+    fetchLatestMaterial();
   }, [navigate]);
+
+  const latestMaterialSeenId = localStorage.getItem('studentSeenLatestMaterialId');
+  const hasUnseenLatestMaterial = Boolean(latestMaterial?._id && latestMaterialSeenId !== latestMaterial._id);
+
+  const handleOpenMaterials = () => {
+    if (latestMaterial?._id) {
+      localStorage.setItem('studentSeenLatestMaterialId', latestMaterial._id);
+    }
+    navigate('/crash-course/materials');
+  };
 
   // PAYMENT DISABLED
   // const getPaymentBadge = (status) => {
@@ -170,15 +202,33 @@ const Home = () => {
               <h3>My Profile</h3>
               <p>Manage your account</p>
             </button>
-            <button className="action-card" onClick={() => navigate('/crash-course/materials')}>
+            <button
+              className={`action-card action-card-material${hasUnseenLatestMaterial ? ' action-card-new-material' : ''}`}
+              onClick={handleOpenMaterials}
+            >
               <div className="action-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
               </div>
-              <h3>Materials</h3>
-              <p>Access resources</p>
+              <h3>
+                Latest Material
+                {hasUnseenLatestMaterial && <span className="action-star">*</span>}
+              </h3>
+              {latestMaterial && (
+                <div className="action-chip-row">
+                  {hasUnseenLatestMaterial && <span className="action-new-chip">★ New Upload</span>}
+                  <span className="action-date-chip">
+                    {new Date(latestMaterial.uploadedAt || latestMaterial.createdAt).toLocaleDateString('en-IN')}
+                  </span>
+                </div>
+              )}
+              <p>
+                {materialsLoading
+                  ? 'Checking latest upload...'
+                  : latestMaterial?.name || 'No material uploaded yet'}
+              </p>
             </button>
             <button className="action-card" onClick={() => navigate('/crash-course/support')}>
               <div className="action-icon">

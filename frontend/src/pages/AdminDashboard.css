@@ -1400,6 +1400,30 @@
   font-size: 0.95rem;
   font-weight: 700;
   color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-new-star {
+  color: #f59e0b;
+  font-size: 1.05rem;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+.admin-new-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.35px;
 }
 
 .admin-list-info span {
