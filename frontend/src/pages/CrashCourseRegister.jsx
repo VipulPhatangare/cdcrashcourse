@@ -3,10 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
 import AuthPopupAlert from '../components/AuthPopupAlert';
-// PAYMENT DISABLED — imports no longer needed
-// import paymentQR from '../assets/QR-code.jpg';
-// import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
-// import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
+import paymentQR from '../assets/QR-code.jpg';
+import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
+import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
 import './CrashCourseRegister.css';
 
 const CrashCourseRegister = () => {
@@ -23,17 +22,15 @@ const CrashCourseRegister = () => {
     password: '',
     confirmPassword: '',
     otp: '',
-    // PAYMENT DISABLED
-    // transactionId: '',
-    // paymentScreenshot: null
+    transactionId: '',
+    paymentScreenshot: null
   });
 
   const [otpSent, setOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // PAYMENT DISABLED
-  // const [lightboxImg, setLightboxImg] = useState(null);
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   // Handle input change
   const handleChange = (e) => {
@@ -44,13 +41,12 @@ const CrashCourseRegister = () => {
     }));
   };
 
-  // PAYMENT DISABLED
-  // const handleFileChange = (e) => {
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     paymentScreenshot: e.target.files[0]
-  //   }));
-  // };
+  const handleFileChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentScreenshot: e.target.files[0]
+    }));
+  };
 
   // Send OTP
   const handleSendOTP = async () => {
@@ -109,7 +105,7 @@ const CrashCourseRegister = () => {
     }
   };
 
-  // Handle Step 1 - Personal Information (now directly registers, payment step removed)
+  // Handle Step 1 - Personal Information
   const handleStep1Submit = async (e) => {
     e.preventDefault();
 
@@ -133,16 +129,30 @@ const CrashCourseRegister = () => {
       return;
     }
 
-    // PAYMENT DISABLED — submit registration directly (course is free)
+    setCurrentStep(2);
+  };
+
+  const handleStep2Submit = async (e) => {
+    e.preventDefault();
+    if (!formData.transactionId || !formData.paymentScreenshot) {
+      setMessage({ type: 'error', text: 'Please provide transaction ID and payment screenshot' });
+      return;
+    }
+
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.post('/crashcourse/register', {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('password', formData.password);
+      formDataToSend.append('transactionId', formData.transactionId);
+      formDataToSend.append('paymentScreenshot', formData.paymentScreenshot);
+
+      const response = await api.post('/crashcourse/register', formDataToSend, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (response.data.success) {
@@ -158,40 +168,6 @@ const CrashCourseRegister = () => {
       setLoading(false);
     }
   };
-
-  // PAYMENT DISABLED
-  // const handleStep2Submit = async (e) => {
-  //   e.preventDefault();
-  //   if (!formData.transactionId || !formData.paymentScreenshot) {
-  //     setMessage({ type: 'error', text: 'Please provide transaction ID and payment screenshot' });
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   setMessage({ type: '', text: '' });
-  //   try {
-  //     const formDataToSend = new FormData();
-  //     formDataToSend.append('name', formData.name);
-  //     formDataToSend.append('email', formData.email);
-  //     formDataToSend.append('phone', formData.phone);
-  //     formDataToSend.append('password', formData.password);
-  //     formDataToSend.append('transactionId', formData.transactionId);
-  //     formDataToSend.append('paymentScreenshot', formData.paymentScreenshot);
-  //     const response = await api.post('/crashcourse/register', formDataToSend, {
-  //       headers: { 'Content-Type': 'multipart/form-data' }
-  //     });
-  //     if (response.data.success) {
-  //       localStorage.setItem('studentId', response.data.data.studentId);
-  //       setCurrentStep(3);
-  //     }
-  //   } catch (error) {
-  //     setMessage({
-  //       type: 'error',
-  //       text: error.response?.data?.message || 'Registration failed'
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   // Navigate to profile
   const handleViewProfile = () => {
@@ -225,15 +201,14 @@ const CrashCourseRegister = () => {
               <div className="step-number">1</div>
               <div className="step-label">Personal Info</div>
             </div>
-            {/* PAYMENT DISABLED — step 2 removed */}
-            {/* <div className={`progress-line ${currentStep >= 2 ? 'active' : ''}`}></div>
+            <div className={`progress-line ${currentStep >= 2 ? 'active' : ''}`}></div>
             <div className={`progress-step ${currentStep >= 2 ? 'active' : ''}`}>
               <div className="step-number">2</div>
               <div className="step-label">Payment</div>
-            </div> */}
+            </div>
             <div className={`progress-line ${currentStep >= 3 ? 'active' : ''}`}></div>
             <div className={`progress-step ${currentStep >= 3 ? 'active' : ''}`}>
-              <div className="step-number">2</div>
+              <div className="step-number">3</div>
               <div className="step-label">Success</div>
             </div>
           </div>
@@ -420,8 +395,7 @@ const CrashCourseRegister = () => {
             </form>
           )}
 
-          {/* PAYMENT DISABLED — Step 2 (Payment) removed */}
-          {/* {currentStep === 2 && (
+          {currentStep === 2 && (
             <form onSubmit={handleStep2Submit} className="step-form">
               <h2>Payment</h2>
               <div className="payment-info">
@@ -471,7 +445,7 @@ const CrashCourseRegister = () => {
                 </button>
               </div>
             </form>
-          )} */}
+          )}
 
           {/* Step 3: Success */}
           {currentStep === 3 && (
@@ -486,7 +460,8 @@ const CrashCourseRegister = () => {
                 Thank you for registering for the <strong>Campus Dekho Crash Course</strong>.
               </p>
               <p>
-                You now have full access to course materials and live sessions.
+                Your payment has been submitted and is under admin verification.
+                Materials will unlock automatically once approved.
               </p>
               <button 
                 onClick={handleViewProfile}
@@ -499,8 +474,7 @@ const CrashCourseRegister = () => {
         </div>
       </div>
 
-      {/* PAYMENT DISABLED — Lightbox removed */}
-      {/* {lightboxImg && (
+      {lightboxImg && (
         <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
           <div className="lightbox-box" onClick={e => e.stopPropagation()}>
             <div className="lightbox-header">
@@ -512,7 +486,7 @@ const CrashCourseRegister = () => {
             <img src={lightboxImg.src} alt={lightboxImg.label} className="lightbox-img" />
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Footer */}
       <footer className="footer">

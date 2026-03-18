@@ -42,7 +42,7 @@ const TeacherLogin = () => {
 
         // Navigate to dashboard
         setTimeout(() => {
-          navigate('/teacher/dashboard');
+          navigate('/teacher/timetable');
         }, 1000);
       }
     } catch (error) {

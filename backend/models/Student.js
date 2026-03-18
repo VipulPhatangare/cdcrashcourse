@@ -30,21 +30,11 @@ const studentSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  // PAYMENT DISABLED - Course is free
-  // transactionId: {
-  //   type: String,
-  //   required: [true, 'Please provide transaction ID'],
-  //   trim: true
-  // },
   transactionId: {
     type: String,
-    default: 'FREE',
+    default: '',
     trim: true
   },
-  // paymentScreenshot: {
-  //   type: String,
-  //   required: [true, 'Please upload payment screenshot']
-  // },
   paymentScreenshot: {
     type: String,
     default: ''
@@ -52,7 +42,7 @@ const studentSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     enum: ['Pending', 'Approved', 'Rejected'],
-    default: 'Approved' // Auto-approved: course is free
+    default: 'Pending'
   },
   courseName: {
     type: String,

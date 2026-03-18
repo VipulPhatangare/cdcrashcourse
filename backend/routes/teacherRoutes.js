@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protectTeacher } = require('../middleware/auth');
-const { uploadPDF } = require('../middleware/upload');
+const { uploadPDF, uploadTimeTable: uploadTimeTableImage } = require('../middleware/upload');
 const {
   sendOTP,
   verifyOTP,
@@ -13,6 +13,9 @@ const {
   uploadMaterial,
   getMaterials,
   deleteMaterial,
+  uploadTimeTable: uploadTimeTableHandler,
+  getTimeTables,
+  deleteTimeTable,
   createEvent,
   getEvents,
   deleteEvent
@@ -31,6 +34,11 @@ router.get('/profile', protectTeacher, getProfile);
 router.post('/materials', protectTeacher, uploadPDF.single('file'), uploadMaterial);
 router.get('/materials', protectTeacher, getMaterials);
 router.delete('/materials/:id', protectTeacher, deleteMaterial);
+
+// Timetables
+router.post('/timetables', protectTeacher, uploadTimeTableImage.single('image'), uploadTimeTableHandler);
+router.get('/timetables', protectTeacher, getTimeTables);
+router.delete('/timetables/:id', protectTeacher, deleteTimeTable);
 
 // Events
 router.post('/events', protectTeacher, createEvent);

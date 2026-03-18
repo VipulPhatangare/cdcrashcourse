@@ -82,6 +82,25 @@ const uploadPDF = multer({
   fileFilter: pdfFilter
 });
 
+// ─── TimeTable Image Upload ───────────────────────────────────────────────
+const timeTableStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    ensureDir('uploads/timetables/');
+    cb(null, 'uploads/timetables/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'timetable-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadTimeTable = multer({
+  storage: timeTableStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: imageFilter
+});
+
 module.exports = upload;
 module.exports.uploadProfile = uploadProfile;
 module.exports.uploadPDF = uploadPDF;
+module.exports.uploadTimeTable = uploadTimeTable;

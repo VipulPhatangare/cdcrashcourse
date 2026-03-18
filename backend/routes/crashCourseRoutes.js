@@ -12,6 +12,7 @@ const {
   forgotPassword,
   resetPassword,
   getStudentMaterials,
+  getStudentTimeTables,
   getStudentEvents,
   submitQuery,
   sendChangePasswordOTP,
@@ -32,6 +33,7 @@ router.patch('/profile/:id', uploadProfile.single('profilePhoto'), updateStudent
 
 // Materials (approved students only)
 router.get('/materials/:studentId', getStudentMaterials);
+router.get('/timetables/:studentId', getStudentTimeTables);
 
 // Events (all logged-in students)
 router.get('/events', getStudentEvents);

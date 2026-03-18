@@ -1,6 +1,7 @@
 const Teacher = require('../models/Teacher');
 const OTP = require('../models/OTP');
 const Material = require('../models/Material');
+const TimeTable = require('../models/TimeTable');
 const Event = require('../models/Event');
 const { sendOTPEmail } = require('../services/emailService');
 const jwt = require('jsonwebtoken');
@@ -469,6 +470,111 @@ exports.deleteMaterial = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete Material Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// ─── TIMETABLES ─────────────────────────────────────────────────────────────
+
+// @desc    Upload a timetable image (Teacher)
+// @route   POST /api/teacher/timetables
+// @access  Private (Teacher)
+exports.uploadTimeTable = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a timetable image'
+      });
+    }
+
+    const { title, description } = req.body;
+
+    if (!title || !title.trim()) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a timetable title'
+      });
+    }
+
+    const relativePath = req.file.path.replace(/\\/g, '/').split(/[\\/]/).slice(-2).join('/');
+    const timetable = await TimeTable.create({
+      title: title.trim(),
+      description: (description || '').trim(),
+      imagePath: relativePath,
+      originalName: req.file.originalname,
+      uploadedBy: 'teacher'
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Timetable uploaded successfully',
+      data: timetable
+    });
+  } catch (error) {
+    console.error('Teacher Upload Timetable Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Get all timetables (Teacher)
+// @route   GET /api/teacher/timetables
+// @access  Private (Teacher)
+exports.getTimeTables = async (req, res) => {
+  try {
+    const timetables = await TimeTable.find().sort({ uploadedAt: -1 });
+    const timetablesWithUrls = timetables.map((t) => ({
+      ...t.toObject(),
+      imageUrl: `/uploads/${t.imagePath}`
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: timetablesWithUrls
+    });
+  } catch (error) {
+    console.error('Teacher Get Timetables Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Delete a timetable (Teacher)
+// @route   DELETE /api/teacher/timetables/:id
+// @access  Private (Teacher)
+exports.deleteTimeTable = async (req, res) => {
+  try {
+    const timetable = await TimeTable.findById(req.params.id);
+
+    if (!timetable) {
+      return res.status(404).json({
+        success: false,
+        message: 'Timetable not found'
+      });
+    }
+
+    const fullPath = path.join(__dirname, '..', 'uploads', timetable.imagePath);
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+
+    await timetable.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'Timetable deleted successfully'
+    });
+  } catch (error) {
+    console.error('Teacher Delete Timetable Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

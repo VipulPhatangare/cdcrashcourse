@@ -1,6 +1,7 @@
 const Student = require('../models/Student');
 const OTP = require('../models/OTP');
 const Material = require('../models/Material');
+const TimeTable = require('../models/TimeTable');
 const Event = require('../models/Event');
 const Query = require('../models/Query');
 const { sendOTPEmail } = require('../services/emailService');
@@ -119,7 +120,7 @@ exports.verifyOTP = async (req, res) => {
 // @access  Public
 exports.registerStudent = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, transactionId } = req.body;
 
     // Validate required fields
     if (!name || !email || !phone || !password) {
@@ -137,13 +138,19 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // PAYMENT DISABLED - Course is free, no screenshot required
-    // if (!req.file) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Please upload payment screenshot'
-    //   });
-    // }
+    if (!transactionId || !transactionId.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide transaction ID'
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload payment screenshot'
+      });
+    }
 
     // Check if email already registered
     const existingStudent = await Student.findOne({ email });
@@ -154,16 +161,18 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // Create student — auto-approved since course is free
+    const normalizedPaymentPath = req.file.path.replace(/\\/g, '/');
+
+    // Create student with pending payment for admin verification
     const student = await Student.create({
       name,
       email,
       phone,
       password,
-      transactionId: 'FREE',       // PAYMENT DISABLED
-      paymentScreenshot: '',        // PAYMENT DISABLED
+      transactionId: transactionId.trim(),
+      paymentScreenshot: normalizedPaymentPath,
       emailVerified: true,
-      paymentStatus: 'Approved'    // PAYMENT DISABLED — auto-approve all students
+      paymentStatus: 'Pending'
     });
 
     res.status(201).json({
@@ -442,13 +451,12 @@ exports.getStudentMaterials = async (req, res) => {
       });
     }
 
-    // PAYMENT DISABLED - All enrolled students can access materials
-    // if (student.paymentStatus !== 'Approved') {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: 'Materials are only available after payment approval'
-    //   });
-    // }
+    if (student.paymentStatus !== 'Approved') {
+      return res.status(403).json({
+        success: false,
+        message: 'Materials are only available after payment approval'
+      });
+    }
 
     const materials = await Material.find().sort({ uploadedAt: -1 });
     const materialsWithUrls = materials.map(m => ({
@@ -462,6 +470,46 @@ exports.getStudentMaterials = async (req, res) => {
     });
   } catch (error) {
     console.error('Get Student Materials Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.'
+    });
+  }
+};
+
+// @desc    Get timetables (only for approved students)
+// @route   GET /api/crashcourse/timetables/:studentId
+// @access  Public (gated by payment status check)
+exports.getStudentTimeTables = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.studentId);
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    if (student.paymentStatus !== 'Approved') {
+      return res.status(403).json({
+        success: false,
+        message: 'Timetable is only available after payment approval'
+      });
+    }
+
+    const timetables = await TimeTable.find().sort({ uploadedAt: -1 });
+    const timetablesWithUrls = timetables.map((t) => ({
+      ...t.toObject(),
+      imageUrl: `/uploads/${t.imagePath}`
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: timetablesWithUrls
+    });
+  } catch (error) {
+    console.error('Get Student Timetable Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

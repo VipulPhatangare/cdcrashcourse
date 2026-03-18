@@ -30,6 +30,17 @@ const NAV_ITEMS = [
     )
   },
   {
+    key: 'timetables',
+    label: 'Time Table',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <line x1="8" y1="4" x2="8" y2="20"></line>
+      </svg>
+    )
+  },
+  {
     key: 'events',
     label: 'Events',
     icon: (
@@ -68,8 +79,7 @@ const AdminDashboard = () => {
     rejectedPayments: 0
   });
   const [loading, setLoading] = useState(true);
-  // PAYMENT DISABLED
-  // const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false, title: '', message: '', onConfirm: null
   });
@@ -90,6 +100,12 @@ const AdminDashboard = () => {
   const [matLoading, setMatLoading] = useState(false);
   const [matForm, setMatForm] = useState({ name: '', description: '', pdf: null });
   const [matUploading, setMatUploading] = useState(false);
+
+  // ── Timetables ─────────────────────────────────────────────────────────────
+  const [timetables, setTimetables] = useState([]);
+  const [ttLoading, setTtLoading] = useState(false);
+  const [ttForm, setTtForm] = useState({ title: '', description: '', image: null });
+  const [ttUploading, setTtUploading] = useState(false);
 
   // ── Events ─────────────────────────────────────────────────────────────────
   const [events, setEvents] = useState([]);
@@ -112,6 +128,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (activeTab === 'materials' && materials.length === 0) fetchMaterials();
+    if (activeTab === 'timetables' && timetables.length === 0) fetchTimeTables();
     if (activeTab === 'events' && events.length === 0) fetchEvents();
     if (activeTab === 'queries' && queries.length === 0) fetchQueries();
   }, [activeTab]);
@@ -130,33 +147,36 @@ const AdminDashboard = () => {
     } finally { setLoading(false); }
   };
 
-  // PAYMENT DISABLED — approve/reject handlers removed
-  // const handleApprove = (id) => setConfirmDialog({
-  //   isOpen: true, title: 'Approve Payment',
-  //   message: 'Are you sure you want to approve this payment?',
-  //   onConfirm: () => confirmApprove(id)
-  // });
-  // const confirmApprove = async (id) => {
-  //   setConfirmDialog(p => ({ ...p, isOpen: false }));
-  //   try {
-  //     await api.patch(`/admin/approve/${id}`);
-  //     showToast('success', 'Payment approved successfully!');
-  //     fetchStudents();
-  //   } catch { showToast('error', 'Failed to approve payment'); }
-  // };
-  // const handleReject = (id) => setConfirmDialog({
-  //   isOpen: true, title: 'Reject Payment',
-  //   message: 'Are you sure you want to reject this payment?',
-  //   onConfirm: () => confirmReject(id)
-  // });
-  // const confirmReject = async (id) => {
-  //   setConfirmDialog(p => ({ ...p, isOpen: false }));
-  //   try {
-  //     await api.patch(`/admin/reject/${id}`);
-  //     showToast('success', 'Payment rejected');
-  //     fetchStudents();
-  //   } catch { showToast('error', 'Failed to reject payment'); }
-  // };
+  const handleApprove = (id) => setConfirmDialog({
+    isOpen: true, title: 'Approve Payment',
+    message: 'Are you sure you want to approve this payment?',
+    onConfirm: () => confirmApprove(id)
+  });
+  const confirmApprove = async (id) => {
+    setConfirmDialog(p => ({ ...p, isOpen: false }));
+    try {
+      await api.patch(`/admin/approve/${id}`);
+      showToast('success', 'Payment approved successfully!');
+      fetchStudents();
+    } catch {
+      showToast('error', 'Failed to approve payment');
+    }
+  };
+  const handleReject = (id) => setConfirmDialog({
+    isOpen: true, title: 'Reject Payment',
+    message: 'Are you sure you want to reject this payment?',
+    onConfirm: () => confirmReject(id)
+  });
+  const confirmReject = async (id) => {
+    setConfirmDialog(p => ({ ...p, isOpen: false }));
+    try {
+      await api.patch(`/admin/reject/${id}`);
+      showToast('success', 'Payment rejected');
+      fetchStudents();
+    } catch {
+      showToast('error', 'Failed to reject payment');
+    }
+  };
 
   const handleDeleteStudent = (id) => setConfirmDialog({
     isOpen: true, title: 'Delete Student',
@@ -216,6 +236,69 @@ const AdminDashboard = () => {
       setMaterials(prev => prev.filter(m => m._id !== id));
       showToast('success', 'Material deleted');
     } catch { showToast('error', 'Failed to delete material'); }
+  };
+
+  // ── Timetables ─────────────────────────────────────────────────────────────
+  const fetchTimeTables = async () => {
+    setTtLoading(true);
+    try {
+      const res = await api.get('/admin/timetables');
+      if (res.data.success) setTimetables(res.data.data);
+    } catch {
+      showToast('error', 'Failed to load timetable data');
+    } finally {
+      setTtLoading(false);
+    }
+  };
+
+  const handleTTSubmit = async (e) => {
+    e.preventDefault();
+    if (!ttForm.title || !ttForm.image) {
+      showToast('error', 'Please provide timetable title and image');
+      return;
+    }
+
+    setTtUploading(true);
+    try {
+      const data = new FormData();
+      data.append('title', ttForm.title);
+      data.append('description', ttForm.description);
+      data.append('image', ttForm.image);
+
+      const res = await api.post('/admin/timetables', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.data.success) {
+        showToast('success', 'Timetable uploaded successfully!');
+        setTtForm({ title: '', description: '', image: null });
+        const input = document.getElementById('tt-image-input');
+        if (input) input.value = '';
+        fetchTimeTables();
+      }
+    } catch (err) {
+      showToast('error', err.response?.data?.message || 'Timetable upload failed');
+    } finally {
+      setTtUploading(false);
+    }
+  };
+
+  const handleDeleteTimeTable = (id) => setConfirmDialog({
+    isOpen: true,
+    title: 'Delete Timetable',
+    message: 'Are you sure you want to delete this timetable image?',
+    onConfirm: () => confirmDeleteTimeTable(id)
+  });
+
+  const confirmDeleteTimeTable = async (id) => {
+    setConfirmDialog(p => ({ ...p, isOpen: false }));
+    try {
+      await api.delete(`/admin/timetables/${id}`);
+      setTimetables(prev => prev.filter(t => t._id !== id));
+      showToast('success', 'Timetable deleted');
+    } catch {
+      showToast('error', 'Failed to delete timetable');
+    }
   };
 
   // ── Events ─────────────────────────────────────────────────────────────────
@@ -412,6 +495,7 @@ const AdminDashboard = () => {
                 <p>
                   {activeTab === 'students' && 'Manage student registrations'}
                   {activeTab === 'materials' && 'Upload and manage PDF study materials'}
+                  {activeTab === 'timetables' && 'Upload and manage timetable images'}
                   {activeTab === 'events' && 'Create and manage live sessions with Zoom links'}
                   {activeTab === 'queries' && 'View and resolve student support queries'}
                 </p>
@@ -429,8 +513,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="stat-info"><h3>{statistics.totalRegistrations}</h3><p>Total Registrations</p></div>
               </div>
-              {/* PAYMENT DISABLED — payment stat cards hidden */}
-              {/* <div className="stat-card stat-pending">
+              <div className="stat-card stat-pending">
                 <div className="stat-icon">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -454,7 +537,7 @@ const AdminDashboard = () => {
                   </svg>
                 </div>
                 <div className="stat-info"><h3>{statistics.rejectedPayments}</h3><p>Rejected Payments</p></div>
-              </div> */}
+              </div>
             </div>
 
             {/* ── STUDENTS ──────────────────────────────────────────────────── */}
@@ -473,11 +556,11 @@ const AdminDashboard = () => {
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            {/* PAYMENT DISABLED */}
-                            {/* <th>Transaction ID</th>
-                            <th>Screenshot</th> */}
+                            <th>Transaction ID</th>
+                            <th>Screenshot</th>
                             <th>Status</th>
                             <th>Date</th>
+                            <th>Payment Action</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
@@ -488,11 +571,14 @@ const AdminDashboard = () => {
                               <td>{s.name}</td>
                               <td>{s.email}</td>
                               <td>{s.phone}</td>
-                              {/* PAYMENT DISABLED */}
-                              {/* <td><span className="txn-id">{s.transactionId}</span></td>
+                              <td><span className="txn-id">{s.transactionId || '-'}</span></td>
                               <td>
-                                <button onClick={() => setSelectedImage(s.paymentScreenshot)} className="btn-view">View</button>
-                              </td> */}
+                                {s.paymentScreenshot ? (
+                                  <button onClick={() => setSelectedImage(s.paymentScreenshot)} className="btn-view">View</button>
+                                ) : (
+                                  <span className="action-disabled">No proof</span>
+                                )}
+                              </td>
                               <td>
                                 <span className={`status-badge status-${s.paymentStatus.toLowerCase()}`}>
                                   {s.paymentStatus}
@@ -500,10 +586,6 @@ const AdminDashboard = () => {
                               </td>
                               <td className="td-date">{new Date(s.createdAt).toLocaleDateString('en-IN')}</td>
                               <td>
-                                <button onClick={() => handleDeleteStudent(s._id)} className="btn-reject">Delete</button>
-                              </td>
-                              {/* PAYMENT DISABLED — approve/reject actions removed */}
-                              {/* <td>
                                 <div className="action-buttons">
                                   {s.paymentStatus === 'Pending' ? (
                                     <>
@@ -514,7 +596,10 @@ const AdminDashboard = () => {
                                     <span className="action-disabled">{s.paymentStatus}</span>
                                   )}
                                 </div>
-                              </td> */}
+                              </td>
+                              <td>
+                                <button onClick={() => handleDeleteStudent(s._id)} className="btn-reject">Delete</button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -617,6 +702,102 @@ const AdminDashboard = () => {
                               className="btn-view"
                             >View PDF</a>
                             <button onClick={() => handleDeleteMaterial(mat._id)} className="btn-reject">Delete</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── TIMETABLES ───────────────────────────────────────────────── */}
+            {activeTab === 'timetables' && (
+              <div className="tab-content">
+                <div className="admin-card" style={{ marginTop: '20px' }}>
+                  <h3 className="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                      <line x1="8" y1="4" x2="8" y2="20"></line>
+                    </svg>
+                    Upload Time Table (Image)
+                  </h3>
+                  <form onSubmit={handleTTSubmit} className="admin-form">
+                    <div className="admin-form-row">
+                      <div className="admin-form-group">
+                        <label>Title *</label>
+                        <input
+                          type="text"
+                          placeholder="e.g., Weekly Class Time Table"
+                          value={ttForm.title}
+                          onChange={e => setTtForm({ ...ttForm, title: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="admin-form-group">
+                        <label>Image *</label>
+                        <input
+                          id="tt-image-input"
+                          type="file"
+                          accept="image/*"
+                          onChange={e => setTtForm({ ...ttForm, image: e.target.files[0] })}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Description <span style={{fontWeight:400,color:'#94a3b8'}}>(optional)</span></label>
+                      <textarea
+                        placeholder="Optional note about this timetable"
+                        value={ttForm.description}
+                        onChange={e => setTtForm({ ...ttForm, description: e.target.value })}
+                        rows="3"
+                      />
+                    </div>
+                    <button type="submit" className="admin-btn-primary" disabled={ttUploading}>
+                      {ttUploading ? 'Uploading...' : 'Upload Time Table'}
+                    </button>
+                  </form>
+                </div>
+
+                <div className="admin-card" style={{ marginTop: '20px' }}>
+                  <h3 className="admin-card-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Uploaded Time Tables ({timetables.length})
+                  </h3>
+                  {ttLoading ? (
+                    <div className="admin-loading-inline">Loading...</div>
+                  ) : timetables.length === 0 ? (
+                    <p className="no-data">No timetable uploaded yet</p>
+                  ) : (
+                    <div className="admin-list">
+                      {timetables.map((tt) => (
+                        <div key={tt._id} className="admin-list-item">
+                          <div className="admin-list-icon event-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <image></image>
+                              <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                            </svg>
+                          </div>
+                          <div className="admin-list-info">
+                            <strong>{tt.title}</strong>
+                            <span>{tt.description || 'No description'}</span>
+                            <small>
+                              Uploaded: {new Date(tt.uploadedAt).toLocaleDateString('en-IN')} • By: {tt.uploadedBy}
+                            </small>
+                          </div>
+                          <div className="admin-list-actions">
+                            <a
+                              href={`${import.meta.env.VITE_SERVER_URL || ''}${tt.imageUrl}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-view"
+                            >View</a>
+                            <button onClick={() => handleDeleteTimeTable(tt._id)} className="btn-reject">Delete</button>
                           </div>
                         </div>
                       ))}
@@ -796,8 +977,7 @@ const AdminDashboard = () => {
         </main>
       </div>
 
-      {/* PAYMENT DISABLED — payment screenshot modal removed */}
-      {/* {selectedImage && (
+      {selectedImage && (
         <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
@@ -805,7 +985,7 @@ const AdminDashboard = () => {
             <img src={`${import.meta.env.VITE_SERVER_URL || ''}/${selectedImage.replace(/\\/g, '/')}`} alt="Payment Screenshot" />
           </div>
         </div>
-      )} */}
+      )}
 
       {/* ── Confirm Dialog ───────────────────────────────────────────────────── */}
       {confirmDialog.isOpen && (

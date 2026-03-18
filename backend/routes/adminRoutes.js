@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
-const { uploadPDF } = require('../middleware/upload');
+const { uploadPDF, uploadTimeTable: uploadTimeTableImage } = require('../middleware/upload');
 const {
   login,
   getStudents,
@@ -12,6 +12,9 @@ const {
   uploadMaterial,
   getMaterials,
   deleteMaterial,
+  uploadTimeTable: uploadTimeTableHandler,
+  getTimeTables,
+  deleteTimeTable,
   createEvent,
   getEvents,
   deleteEvent,
@@ -33,6 +36,11 @@ router.patch('/reject/:id', protect, rejectPayment);
 router.post('/materials', protect, uploadPDF.single('pdf'), uploadMaterial);
 router.get('/materials', protect, getMaterials);
 router.delete('/materials/:id', protect, deleteMaterial);
+
+// TimeTable management
+router.post('/timetables', protect, uploadTimeTableImage.single('image'), uploadTimeTableHandler);
+router.get('/timetables', protect, getTimeTables);
+router.delete('/timetables/:id', protect, deleteTimeTable);
 
 // Events management
 router.post('/events', protect, createEvent);
