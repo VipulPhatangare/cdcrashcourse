@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
 import AuthPopupAlert from '../components/AuthPopupAlert';
-import paymentQR from '../assets/QR-code.jpg';
+import paymentQR from '../assets/QR-code.jpeg';
 import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
 import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
 import './CrashCourseRegister.css';
