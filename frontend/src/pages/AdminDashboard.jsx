@@ -119,6 +119,12 @@ const AdminDashboard = () => {
 
   const adminEmail = localStorage.getItem('adminEmail') || 'Admin';
 
+  const getAccessStatusLabel = (status) => {
+    if (status === 'Approved') return 'Active';
+    if (status === 'Rejected') return 'Inactive';
+    return 'Pending';
+  };
+
   // ── Init ───────────────────────────────────────────────────────────────────
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -148,33 +154,33 @@ const AdminDashboard = () => {
   };
 
   const handleApprove = (id) => setConfirmDialog({
-    isOpen: true, title: 'Approve Payment',
-    message: 'Are you sure you want to approve this payment?',
+    isOpen: true, title: 'Activate Access',
+    message: 'Are you sure you want to activate access for this student?',
     onConfirm: () => confirmApprove(id)
   });
   const confirmApprove = async (id) => {
     setConfirmDialog(p => ({ ...p, isOpen: false }));
     try {
       await api.patch(`/admin/approve/${id}`);
-      showToast('success', 'Payment approved successfully!');
+      showToast('success', 'Student access activated successfully!');
       fetchStudents();
     } catch {
-      showToast('error', 'Failed to approve payment');
+      showToast('error', 'Failed to activate student access');
     }
   };
   const handleReject = (id) => setConfirmDialog({
-    isOpen: true, title: 'Reject Payment',
-    message: 'Are you sure you want to reject this payment?',
+    isOpen: true, title: 'Deactivate Access',
+    message: 'Are you sure you want to deactivate access for this student?',
     onConfirm: () => confirmReject(id)
   });
   const confirmReject = async (id) => {
     setConfirmDialog(p => ({ ...p, isOpen: false }));
     try {
       await api.patch(`/admin/reject/${id}`);
-      showToast('success', 'Payment rejected');
+      showToast('success', 'Student access deactivated');
       fetchStudents();
     } catch {
-      showToast('error', 'Failed to reject payment');
+      showToast('error', 'Failed to deactivate student access');
     }
   };
 
@@ -519,7 +525,7 @@ const AdminDashboard = () => {
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </div>
-                <div className="stat-info"><h3>{statistics.pendingPayments}</h3><p>Pending Payments</p></div>
+                <div className="stat-info"><h3>{statistics.pendingPayments}</h3><p>Pending Access</p></div>
               </div>
               <div className="stat-card stat-approved">
                 <div className="stat-icon">
@@ -527,7 +533,7 @@ const AdminDashboard = () => {
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <div className="stat-info"><h3>{statistics.approvedPayments}</h3><p>Approved Payments</p></div>
+                <div className="stat-info"><h3>{statistics.approvedPayments}</h3><p>Active Students</p></div>
               </div>
               <div className="stat-card stat-rejected">
                 <div className="stat-icon">
@@ -536,7 +542,7 @@ const AdminDashboard = () => {
                     <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
                   </svg>
                 </div>
-                <div className="stat-info"><h3>{statistics.rejectedPayments}</h3><p>Rejected Payments</p></div>
+                <div className="stat-info"><h3>{statistics.rejectedPayments}</h3><p>Inactive Students</p></div>
               </div>
             </div>
 
@@ -560,7 +566,7 @@ const AdminDashboard = () => {
                             <th>Screenshot</th>
                             <th>Status</th>
                             <th>Date</th>
-                            <th>Payment Action</th>
+                            {/* <th>Access Action</th> */}
                             <th>Actions</th>
                           </tr>
                         </thead>
@@ -581,22 +587,16 @@ const AdminDashboard = () => {
                               </td>
                               <td>
                                 <span className={`status-badge status-${s.paymentStatus.toLowerCase()}`}>
-                                  {s.paymentStatus}
+                                  {getAccessStatusLabel(s.paymentStatus)}
                                 </span>
                               </td>
                               <td className="td-date">{new Date(s.createdAt).toLocaleDateString('en-IN')}</td>
-                              <td>
+                              {/* <td>
                                 <div className="action-buttons">
-                                  {s.paymentStatus === 'Pending' ? (
-                                    <>
-                                      <button onClick={() => handleApprove(s._id)} className="btn-approve">Approve</button>
-                                      <button onClick={() => handleReject(s._id)} className="btn-reject">Reject</button>
-                                    </>
-                                  ) : (
-                                    <span className="action-disabled">{s.paymentStatus}</span>
-                                  )}
+                                  <button onClick={() => handleApprove(s._id)} className="btn-approve">Activate</button>
+                                  <button onClick={() => handleReject(s._id)} className="btn-reject">Deactivate</button>
                                 </div>
-                              </td>
+                              </td> */}
                               <td>
                                 <button onClick={() => handleDeleteStudent(s._id)} className="btn-reject">Delete</button>
                               </td>
@@ -981,8 +981,8 @@ const AdminDashboard = () => {
         <div className="modal-overlay" onClick={() => setSelectedImage(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
-            <p className="modal-label">Payment Screenshot</p>
-            <img src={`${import.meta.env.VITE_SERVER_URL || ''}/${selectedImage.replace(/\\/g, '/')}`} alt="Payment Screenshot" />
+            <p className="modal-label">Registration Screenshot</p>
+            <img src={`${import.meta.env.VITE_SERVER_URL || ''}/${selectedImage.replace(/\\/g, '/')}`} alt="Registration Screenshot" />
           </div>
         </div>
       )}

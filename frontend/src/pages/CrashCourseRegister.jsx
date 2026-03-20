@@ -3,9 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import logo from '../assets/Both Logo.png';
 import AuthPopupAlert from '../components/AuthPopupAlert';
-import paymentQR from '../assets/QR-code.jpeg';
-import gpayScreenshot from '../assets/GPaYSampleScreenshot.jpeg';
-import phonePeScreenshot from '../assets/phonePaYSampleScreenshot.jpeg';
 import './CrashCourseRegister.css';
 
 const CrashCourseRegister = () => {
@@ -21,16 +18,13 @@ const CrashCourseRegister = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    otp: '',
-    transactionId: '',
-    paymentScreenshot: null
+    otp: ''
   });
 
   const [otpSent, setOtpSent] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [lightboxImg, setLightboxImg] = useState(null);
 
   // Handle input change
   const handleChange = (e) => {
@@ -38,13 +32,6 @@ const CrashCourseRegister = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      paymentScreenshot: e.target.files[0]
     }));
   };
 
@@ -129,16 +116,6 @@ const CrashCourseRegister = () => {
       return;
     }
 
-    setCurrentStep(2);
-  };
-
-  const handleStep2Submit = async (e) => {
-    e.preventDefault();
-    if (!formData.transactionId || !formData.paymentScreenshot) {
-      setMessage({ type: 'error', text: 'Please provide transaction ID and payment screenshot' });
-      return;
-    }
-
     setLoading(true);
     setMessage({ type: '', text: '' });
 
@@ -148,8 +125,6 @@ const CrashCourseRegister = () => {
       formDataToSend.append('email', formData.email);
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('password', formData.password);
-      formDataToSend.append('transactionId', formData.transactionId);
-      formDataToSend.append('paymentScreenshot', formData.paymentScreenshot);
 
       const response = await api.post('/crashcourse/register', formDataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -157,7 +132,7 @@ const CrashCourseRegister = () => {
 
       if (response.data.success) {
         localStorage.setItem('studentId', response.data.data.studentId);
-        setCurrentStep(3);
+        setCurrentStep(2);
       }
     } catch (error) {
       setMessage({
@@ -204,11 +179,6 @@ const CrashCourseRegister = () => {
             <div className={`progress-line ${currentStep >= 2 ? 'active' : ''}`}></div>
             <div className={`progress-step ${currentStep >= 2 ? 'active' : ''}`}>
               <div className="step-number">2</div>
-              <div className="step-label">Payment</div>
-            </div>
-            <div className={`progress-line ${currentStep >= 3 ? 'active' : ''}`}></div>
-            <div className={`progress-step ${currentStep >= 3 ? 'active' : ''}`}>
-              <div className="step-number">3</div>
               <div className="step-label">Success</div>
             </div>
           </div>
@@ -395,60 +365,8 @@ const CrashCourseRegister = () => {
             </form>
           )}
 
+          {/* Step 2: Success */}
           {currentStep === 2 && (
-            <form onSubmit={handleStep2Submit} className="step-form">
-              <h2>Payment</h2>
-              <div className="payment-info">
-                <div className="payment-amount"><h3>Course Fee: ₹999</h3></div>
-                <div className="qr-section">
-                  <h4>Scan QR Code to Pay</h4>
-                  <div className="qr-image-wrapper">
-                    <img src={paymentQR} alt="Payment QR Code" className="qr-image" />
-                  </div>
-                  <p className="payment-instructions">
-                    After payment, upload the screenshot and enter transaction ID below
-                  </p>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Transaction ID *</label>
-                <input type="text" name="transactionId" value={formData.transactionId}
-                  onChange={handleChange} placeholder="Enter transaction ID from payment app" required />
-              </div>
-              <div className="form-group">
-                <label>Payment Screenshot *</label>
-                <input type="file" accept="image/*" onChange={handleFileChange} required />
-                {formData.paymentScreenshot && (
-                  <small className="file-selected">Selected: {formData.paymentScreenshot.name}</small>
-                )}
-              </div>
-              <div className="sample-screenshots">
-                <h4>Sample Payment Screenshots</h4>
-                <p className="sample-hint">Your screenshot should look similar to one of these:</p>
-                <div className="sample-grid">
-                  <div className="sample-item">
-                    <img src={gpayScreenshot} alt="Google Pay sample screenshot" />
-                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: gpayScreenshot, label: 'Google Pay' })}>View Full Image</button>
-                    <span>Google Pay</span>
-                  </div>
-                  <div className="sample-item">
-                    <img src={phonePeScreenshot} alt="PhonePe sample screenshot" />
-                    <button className="view-full-btn" onClick={() => setLightboxImg({ src: phonePeScreenshot, label: 'PhonePe' })}>View Full Image</button>
-                    <span>PhonePe</span>
-                  </div>
-                </div>
-              </div>
-              <div className="button-group">
-                <button type="button" onClick={() => setCurrentStep(1)} className="btn-secondary">Back</button>
-                <button type="submit" className="btn-primary" disabled={loading}>
-                  {loading ? 'Submitting...' : 'Submit Registration'}
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Step 3: Success */}
-          {currentStep === 3 && (
             <div className="success-message">
               <div className="success-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -460,8 +378,8 @@ const CrashCourseRegister = () => {
                 Thank you for registering for the <strong>Campus Dekho Crash Course</strong>.
               </p>
               <p>
-                Your payment has been submitted and is under admin verification.
-                Materials will unlock automatically once approved.
+                Your account is verified and active.
+                You can now access materials and timetable directly.
               </p>
               <button 
                 onClick={handleViewProfile}
@@ -473,20 +391,6 @@ const CrashCourseRegister = () => {
           )}
         </div>
       </div>
-
-      {lightboxImg && (
-        <div className="lightbox-overlay" onClick={() => setLightboxImg(null)}>
-          <div className="lightbox-box" onClick={e => e.stopPropagation()}>
-            <div className="lightbox-header">
-              <span>{lightboxImg.label} — Sample Screenshot</span>
-              <button className="lightbox-close" onClick={() => setLightboxImg(null)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
-            <img src={lightboxImg.src} alt={lightboxImg.label} className="lightbox-img" />
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="footer">
@@ -504,15 +408,6 @@ const CrashCourseRegister = () => {
               <li><Link to="/crash-course">Home</Link></li>
               <li><Link to="/crash-course/register">Register</Link></li>
               <li><Link to="/crash-course/login">Login</Link></li>
-            </ul>
-          </div>
-          
-          <div className="footer-section">
-            <h3>Resources</h3>
-            <ul className="footer-links">
-              <li><a href="#">Blog & News</a></li>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
             </ul>
           </div>
           

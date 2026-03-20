@@ -103,7 +103,7 @@ exports.getStudents = async (req, res) => {
   }
 };
 
-// @desc    Approve payment
+// @desc    Activate student access
 // @route   PATCH /api/admin/approve/:id
 // @access  Private (Admin)
 exports.approvePayment = async (req, res) => {
@@ -122,11 +122,11 @@ exports.approvePayment = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Payment approved successfully',
+      message: 'Student access activated successfully',
       data: student
     });
   } catch (error) {
-    console.error('Approve Payment Error:', error);
+    console.error('Activate Access Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'
@@ -134,7 +134,7 @@ exports.approvePayment = async (req, res) => {
   }
 };
 
-// @desc    Reject payment
+// @desc    Deactivate student access
 // @route   PATCH /api/admin/reject/:id
 // @access  Private (Admin)
 exports.rejectPayment = async (req, res) => {
@@ -153,11 +153,11 @@ exports.rejectPayment = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Payment rejected',
+      message: 'Student access deactivated',
       data: student
     });
   } catch (error) {
-    console.error('Reject Payment Error:', error);
+    console.error('Deactivate Access Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error. Please try again later.'

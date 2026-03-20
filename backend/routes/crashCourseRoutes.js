@@ -31,7 +31,7 @@ router.post('/reset-password', resetPassword);
 router.get('/profile/:id', getStudentProfile);
 router.patch('/profile/:id', uploadProfile.single('profilePhoto'), updateStudentProfile);
 
-// Materials (approved students only)
+// Materials (active students only)
 router.get('/materials/:studentId', getStudentMaterials);
 router.get('/timetables/:studentId', getStudentTimeTables);
 

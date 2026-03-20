@@ -177,15 +177,6 @@ const DashboardLayout = ({ children }) => {
                 </ul>
               </div>
               <div className="dash-footer-col">
-                <h4>Resources</h4>
-                <ul>
-                  <li><Link to="/crash-course/materials">Study Materials</Link></li>
-                  <li><Link to="/crash-course/timetable">Time Table</Link></li>
-                  <li><Link to="/crash-course/events">Upcoming Events</Link></li>
-                  <li><Link to="/crash-course/my-profile">My Profile</Link></li>
-                </ul>
-              </div>
-              <div className="dash-footer-col">
                 <h4>Contact</h4>
                 <ul>
                   <li><a href="mailto:support@campusdekho.ai">support@campusdekho.ai</a></li>

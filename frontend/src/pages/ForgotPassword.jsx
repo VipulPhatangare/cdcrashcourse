@@ -332,15 +332,6 @@ const ForgotPassword = () => {
           </div>
           
           <div className="footer-section">
-            <h3>Resources</h3>
-            <ul className="footer-links">
-              <li><a href="#">Blog & News</a></li>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Contact Us</a></li>
-            </ul>
-          </div>
-          
-          <div className="footer-section">
             <h3>Contact</h3>
             <ul className="footer-contact">
               <li>campusdekho.ai</li>

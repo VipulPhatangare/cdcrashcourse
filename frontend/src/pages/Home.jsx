@@ -118,16 +118,6 @@ const Home = () => {
           <h2 className="section-title">Your Enrolled Course</h2>
           <div className="course-cards">
             <div className="course-card">
-              <div className="course-header">
-                <div className="course-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                  </svg>
-                </div>
-                {/* PAYMENT DISABLED — payment badge hidden */}
-                {/* <span className={`course-badge ${badge.cls}`}>{badge.label}</span> */}
-              </div>
               <h3 className="course-name">{student?.courseName}</h3>
               <div className="course-details">
                 <div className="detail-item">

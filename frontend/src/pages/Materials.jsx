@@ -8,7 +8,6 @@ const Materials = () => {
   const navigate = useNavigate();
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [paymentStatus, setPaymentStatus] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -22,18 +21,13 @@ const Materials = () => {
 
   const fetchMaterials = async (studentId) => {
     try {
-      // First fetch profile to know payment status
-      const profileRes = await api.get(`/crashcourse/profile/${studentId}`);
-      if (profileRes.data.success) {
-        setPaymentStatus(profileRes.data.data.paymentStatus);
-      }
       const res = await api.get(`/crashcourse/materials/${studentId}`);
       if (res.data.success) {
         setMaterials(res.data.data);
       }
     } catch (err) {
       if (err.response?.status === 403) {
-        setPaymentStatus('Pending');
+        setError('Your access is currently inactive. Please contact admin.');
       } else {
         setError('Failed to load materials');
       }
@@ -73,24 +67,6 @@ const Materials = () => {
           <div className="loading-state">
             <div className="spinner"></div>
             <p>Loading materials...</p>
-          </div>
-        ) : paymentStatus !== 'Approved' ? (
-          <div className="locked-state">
-            <div className="lock-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-            </div>
-            <h3>Materials Locked</h3>
-            <p>
-              {paymentStatus === 'Pending'
-                ? 'Your payment is under review. Materials will be unlocked once your payment is approved.'
-                : 'Your payment was not approved. Please contact support for assistance.'}
-            </p>
-            <span className={`payment-badge payment-${paymentStatus ? paymentStatus.toLowerCase() : 'pending'}`}>
-              Payment: {paymentStatus || 'Pending'}
-            </span>
           </div>
         ) : error ? (
           <div className="empty-state">

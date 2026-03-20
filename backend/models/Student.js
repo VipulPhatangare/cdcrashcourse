@@ -42,7 +42,7 @@ const studentSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     enum: ['Pending', 'Approved', 'Rejected'],
-    default: 'Pending'
+    default: 'Approved'
   },
   courseName: {
     type: String,

@@ -120,7 +120,7 @@ exports.verifyOTP = async (req, res) => {
 // @access  Public
 exports.registerStudent = async (req, res) => {
   try {
-    const { name, email, phone, password, transactionId } = req.body;
+    const { name, email, phone, password } = req.body;
 
     // Validate required fields
     if (!name || !email || !phone || !password) {
@@ -138,20 +138,6 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    if (!transactionId || !transactionId.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide transaction ID'
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload payment screenshot'
-      });
-    }
-
     // Check if email already registered
     const existingStudent = await Student.findOne({ email });
     if (existingStudent) {
@@ -161,23 +147,23 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    const normalizedPaymentPath = req.file.path.replace(/\\/g, '/');
+    const normalizedPaymentPath = req.file ? req.file.path.replace(/\\/g, '/') : '';
 
-    // Create student with pending payment for admin verification
+    // Create student with email verified and access active by default
     const student = await Student.create({
       name,
       email,
       phone,
       password,
-      transactionId: transactionId.trim(),
+      transactionId: '',
       paymentScreenshot: normalizedPaymentPath,
       emailVerified: true,
-      paymentStatus: 'Pending'
+      paymentStatus: 'Approved'
     });
 
     res.status(201).json({
       success: true,
-      message: 'Registration submitted successfully',
+      message: 'Registration successful',
       data: {
         studentId: student._id,
         name: student.name,
@@ -437,9 +423,9 @@ exports.resetPassword = async (req, res) => {
 
 // ─── STUDENT: MATERIALS ───────────────────────────────────────────────────────
 
-// @desc    Get materials (only for approved students)
+// @desc    Get materials (only for active students)
 // @route   GET /api/crashcourse/materials/:studentId
-// @access  Public (gated by payment status check)
+// @access  Public (gated by access status check)
 exports.getStudentMaterials = async (req, res) => {
   try {
     const student = await Student.findById(req.params.studentId);
@@ -454,7 +440,7 @@ exports.getStudentMaterials = async (req, res) => {
     if (student.paymentStatus !== 'Approved') {
       return res.status(403).json({
         success: false,
-        message: 'Materials are only available after payment approval'
+        message: 'Your access is currently inactive. Please contact admin.'
       });
     }
 
@@ -477,9 +463,9 @@ exports.getStudentMaterials = async (req, res) => {
   }
 };
 
-// @desc    Get timetables (only for approved students)
+// @desc    Get timetables (only for active students)
 // @route   GET /api/crashcourse/timetables/:studentId
-// @access  Public (gated by payment status check)
+// @access  Public (gated by access status check)
 exports.getStudentTimeTables = async (req, res) => {
   try {
     const student = await Student.findById(req.params.studentId);
@@ -494,7 +480,7 @@ exports.getStudentTimeTables = async (req, res) => {
     if (student.paymentStatus !== 'Approved') {
       return res.status(403).json({
         success: false,
-        message: 'Timetable is only available after payment approval'
+        message: 'Your access is currently inactive. Please contact admin.'
       });
     }
 

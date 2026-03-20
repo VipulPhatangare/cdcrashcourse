@@ -129,12 +129,12 @@ const Support = () => {
           <h2 className="section-title">Frequently Asked Questions</h2>
           <div className="faq-grid">
             <div className="faq-card">
-              <h3>When will my payment be verified?</h3>
-              <p>Payment verification typically takes 24-48 hours. You'll receive an email once verified.</p>
+              <h3>How soon can I access the dashboard?</h3>
+              <p>As soon as your registration and email verification are complete, your dashboard access is enabled automatically.</p>
             </div>
             <div className="faq-card">
               <h3>How do I access course materials?</h3>
-              <p>Once your payment is verified, you can access all materials from the Materials section.</p>
+              <p>You can access all materials directly from the Materials section after login.</p>
             </div>
             <div className="faq-card">
               <h3>What if I miss a live session?</h3>
